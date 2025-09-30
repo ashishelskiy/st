@@ -1,0 +1,14 @@
+{% extends "service_track_app/base.html" %}
+{% block title %}Отследить заявку{% endblock %}
+
+{% block content %}
+<div class="search-section">
+    <label class="search-label" for="serialNumber">Введите серийный номер товара:</label>
+    <div class="search-container">
+        <input type="text" id="serialNumber" class="search-input" placeholder="Например: SN123456789">
+        <button class="search-btn">Отследить</button>
+    </div>
+</div>
+
+<!-- сюда вставь твой блок с результатами статуса -->
+{% endblock %}

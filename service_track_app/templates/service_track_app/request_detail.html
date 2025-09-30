@@ -1,0 +1,43 @@
+{% extends "service_track_app/base.html" %}
+{% block title %}Детали заявки #{{ repair_request.id }} (редактирование){% endblock %}
+
+{% block content %}
+<div class="request-detail-section">
+    <div class="request-detail-header">
+        <div class="request-detail-title">Детали заявки #{{ repair_request.id }} (редактирование)</div>
+    </div>
+    <div class="request-details-actions">
+        <button class="action-btn btn-secondary" onclick="window.location.href='{% url 'my_requests' %}'">← Назад</button>
+<!--        <button class="action-btn btn-primary" id="saveRequestBtn" onclick="saveRequestDetails()" style="">💾 Сохранить</button>-->
+        <button class="action-btn btn-primary" type="submit">Сохранить изменения</button>
+
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_serial_number">Серийный номер</label>
+            {{ form.serial_number }}
+        </div>
+        <div class="form-group">
+            <label for="id_model_name">Модель товара</label>
+            {{ form.model_name }}
+        </div>
+        <div class="form-group">
+            <label for="id_purchase_date">Дата покупки</label>
+            {{ form.purchase_date }}
+        </div>
+        <div class="form-group">
+            <label for="id_warranty_status">Статус гарантии</label>
+            {{ form.warranty_status }}
+        </div>
+        <div class="form-group">
+            <label for="id_problem_description">Описание неисправности</label>
+            {{ form.problem_description }}
+        </div>
+        <!-- Добавьте остальные поля формы по необходимости -->
+
+        <button type="submit">Сохранить изменения</button>
+    </form>
+</div>
+{% endblock %}

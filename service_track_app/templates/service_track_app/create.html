@@ -1,0 +1,13 @@
+{% extends "service_track_app/base.html" %}
+{% block title %}Создать заявку{% endblock %}
+
+{% block content %}
+<div class="form-section">
+    <div class="form-title">Создание новой заявки на ремонт</div>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="submit-btn">📝 Создать заявку</button>
+    </form>
+</div>
+{% endblock %}

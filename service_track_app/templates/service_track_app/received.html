@@ -1,0 +1,61 @@
+{% extends "service_track_app/base.html" %}
+{% block title %}Поступившие в СЦ{% endblock %}
+
+{% block content %}
+<div class="received-section">
+    <div class="received-header">
+        <div class="received-title">Поступившие в СЦ</div>
+    </div>
+
+    <div class="filter-controls">
+        <button onclick="toggleReceivedView('packages')">📦 Пакеты</button>
+        <button onclick="toggleReceivedView('requests')">📄 Заявки</button>
+        <select onchange="filterReceivedStatus(this.value)">
+            <option value="all">Все</option>
+            <option value="received">Поступил</option>
+            <option value="inprogress">В работе</option>
+            <option value="completed">Завершен</option>
+        </select>
+    </div>
+
+    {% if repair_requests %}
+        <div class="requests-table-container">
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>№ заявки</th>
+                        <th>Серийный номер</th>
+                        <th>Модель</th>
+                        <th>Статус</th>
+                        <th>Дата поступления</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in repair_requests %}
+                        <tr class="request-row">
+                            <td class="request-id">#{{ request.id }}</td>
+                            <td>{{ request.serial_number }}</td>
+                            <td>{{ request.model_name }}</td>
+                            <td>
+                                {% if request.warranty_status == "warranty" %}
+                                    <span class="request-status status-sent">На гарантии</span>
+                                {% elif request.warranty_status == "expired" %}
+                                    <span class="request-status status-created">Гарантия истекла</span>
+                                {% else %}
+                                    <span class="request-status status-created">Неизвестно</span>
+                                {% endif %}
+                            </td>
+                            <td class="request-date">{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-text">Нет заявок для отображения</div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
