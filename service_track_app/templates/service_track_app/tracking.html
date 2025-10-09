@@ -2,13 +2,127 @@
 {% block title %}Отследить заявку{% endblock %}
 
 {% block content %}
-<div class="search-section">
-    <label class="search-label" for="serialNumber">Введите серийный номер товара:</label>
-    <div class="search-container">
-        <input type="text" id="serialNumber" class="search-input" placeholder="Например: SN123456789">
-        <button class="search-btn">Отследить</button>
-    </div>
-</div>
+<!--<div class="search-section">-->
+<!--    <label class="search-label" for="serialNumber">Введите серийный номер товара:</label>-->
+<!--    <div class="search-container">-->
+<!--        <input type="text" id="serialNumber" class="search-input" placeholder="Например: SN123456789">-->
+<!--        <button class="search-btn">Отследить</button>-->
+<!--    </div>-->
+<!--</div>-->
+<!-- Секция отслеживания -->
+<div id="trackingSection" class="section active">
+    <form method="post" action="{% url 'track_request' %}" class="search-section">
+        {% csrf_token %}
+        <div class="search-section">
+            <label class="search-label" for="serialNumber">Введите серийный номер товара:</label>
+            <div class="search-container">
+                <input
+                    type="text"
+                    name="serial_number"
+                    id="serialNumber"
+                    class="search-input"
+                    placeholder="Например: SN123456789"
+                    maxlength="20"
+                >
+                <button type="submit" class="search-btn">Отследить</button>
+            </div>
+        </div>
+    </form>
+    {% if repair_request %}
+<!--    <div id="statusSection" class="status-section">-->
+        <div class="status-title">Статус ремонта: {{ repair_request.serial_number }} <span id="serialDisplay"></span></div>
 
-<!-- сюда вставь твой блок с результатами статуса -->
+        <div class="status-timeline">
+            {% if status_history %}
+                {% for h in status_history %}
+                    <div class="status-item">
+                        <div class="status-icon {% if forloop.last %}current{% else %}completed{% endif %}">{{ forloop.counter }}</div>
+                        <div class="status-content">
+                            <div class="status-step">{{ h.get_new_status_display }}</div>
+                            {% if h.comment %}
+                                <div class="status-description">{{ h.comment }}</div>
+                            {% endif %}
+                            <div class="status-date">{{ h.changed_at|date:"d.m.Y, H:i" }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Статусы заявки отсутствуют.</p>
+            {% endif %}
+        </div>
+
+<!--        <div class="status-timeline">-->
+<!--            <div class="status-item">-->
+<!--                <div class="status-icon completed">1</div>-->
+<!--                <div class="status-content">-->
+<!--                    <div class="status-step">Товар принят дилером</div>-->
+<!--                    <div class="status-description">Товар получен от покупателя и зарегистрирован в системе</div>-->
+<!--                    <div class="status-date">{{ status_history.changed_at }}15.03.2024, 14:30</div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="status-item">-->
+<!--                <div class="status-icon completed">2</div>-->
+<!--                <div class="status-content">-->
+<!--                    <div class="status-step">Отправка дистрибьютору</div>-->
+<!--                    <div class="status-description">Товар отправлен региональному дистрибьютору для дальнейшей обработки</div>-->
+<!--                    <div class="status-date">18.03.2024, 10:15</div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="status-item">-->
+<!--                <div class="status-icon completed">3</div>-->
+<!--                <div class="status-content">-->
+<!--                    <div class="status-step">Получен дистрибьютором</div>-->
+<!--                    <div class="status-description">Товар получен дистрибьютором и подготовлен к отправке в сервисный центр</div>-->
+<!--                    <div class="status-date">22.03.2024, 16:45</div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="status-item">-->
+<!--                <div class="status-icon current">4</div>-->
+<!--                <div class="status-content">-->
+<!--                    <div class="status-step">В сервисном центре</div>-->
+<!--                    <div class="status-description">Товар находится в сервисном центре, проводится диагностика</div>-->
+<!--                    <div class="status-date">25.03.2024, 09:20</div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="status-item">-->
+<!--                <div class="status-icon pending">5</div>-->
+<!--                <div class="status-content">-->
+<!--                    <div class="status-step">Ремонт</div>-->
+<!--                    <div class="status-description">Выполнение ремонтных работ</div>-->
+<!--                    <div class="status-date">Ожидается</div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="status-item">-->
+<!--                <div class="status-icon pending">6</div>-->
+<!--                <div class="status-content">-->
+<!--                    <div class="status-step">Возврат покупателю</div>-->
+<!--                    <div class="status-description">Отправка отремонтированного товара обратно через цепочку продаж</div>-->
+<!--                    <div class="status-date">Ожидается</div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <div class="info-section">
+            <div class="info-title">Дополнительная информация</div>
+            <div class="info-text">
+                <strong>Тип неисправности:</strong> Не включается<br>
+                <strong>Предварительная диагностика:</strong> Возможная неисправность блока питания<br>
+                <strong>Ожидаемый срок ремонта:</strong> 7-10 рабочих дней<br>
+                <strong>Статус гарантии:</strong> Гарантийный случай
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <a href="#" class="action-link">📞 Связаться с сервисом</a>
+            <a href="#" class="action-link">📧 Получить уведомления</a>
+            <a href="#" class="action-link">📄 Скачать справку</a>
+        </div>
+<!--    </div>-->
+    {% endif %}
+</div>
 {% endblock %}

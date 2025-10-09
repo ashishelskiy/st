@@ -3,7 +3,58 @@
 
 {% block content %}
 <div class="sent-requests-section">
-    <div class="requests-title">Отправленные пакеты заявок</div>
+<!--    <div class="requests-title">Отправленные пакеты заявок</div>-->
     <!-- тут список отправленных пакетов -->
+    <div class="sent-requests-section">
+        <div class="breadcrumb">
+            <span class="breadcrumb-item" onclick="window.location.href='{% url 'sent_requests' %}'">📦 Отправленные пакеты</span>
+            <span class="breadcrumb-separator" id="breadcrumbSeparator" style="display: none;">›</span>
+            <span class="breadcrumb-current" id="breadcrumbCurrent" style="display: none;"></span>
+        </div>
+
+        <div id="packagesListContainer">
+            <div class="requests-title" style="margin-bottom: 30px;">Отправленные пакеты заявок</div>
+            <div id="packagesContainer">
+                {% for p in packages %}
+<!--                    <div class="package-card" onclick="showPackageDetails('02.10.2025')">-->
+                    <div class="package-card" onclick="window.location.href='{% url 'package_detail' p.id %}'">
+<!--                        <a href="{% url 'package_detail' p.id %}">-->
+                            <div class="package-header">
+<!--                                <div class="package-date">📦 Пакет от {{ p.created_at|date:"d.m.Y" }}</div>-->
+                                <div class="package-date">📦 {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+                                <div class="package-count">{{ p.request_count }} заявок</div>
+                            </div>
+                            <div class="package-info">
+                                <div class="package-info-item">
+                                    <span>🕒</span>
+                                    <span>Отправлено в {{ p.created_at|date:"H:i" }}</span>
+                                </div>
+<!--                                <div class="package-info-item">-->
+<!--                                    <span>🏢</span>-->
+<!--                                    <span>{{ p.dealer_company }}</span>-->
+<!--                                </div>-->
+    <!--                            <div class="package-info-item">-->
+    <!--                                <span>✅</span>-->
+    <!--                                <span>На гарантии: 1</span>-->
+    <!--                            </div>-->
+    <!--                            <div class="package-info-item">-->
+    <!--                                <span>⚠️</span>-->
+    <!--                                <span>Гарантия истекла: 0</span>-->
+    <!--                            </div>-->
+                            </div>
+<!--                        </a>-->
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div id="packageDetailsContainer" class="package-details">
+            <button class="back-btn" onclick="showPackagesList()">← Назад к списку пакетов</button>
+            <div class="requests-title" id="packageDetailsTitle"></div>
+            <div id="packageRequestsContainer">
+                <!-- Заявки пакета будут заполнены JavaScript -->
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

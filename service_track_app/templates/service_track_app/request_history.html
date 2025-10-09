@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h3>История изменений</h3>
+    <ul>
+      {% for h in request.history.all %}
+        <li>
+          {{ h.changed_at|date:"d.m.Y H:i" }} — {{ h.changed_by }}:
+          {{ h.old_status }} → {{ h.new_status }}
+          {% if h.comment %}<br><i>{{ h.comment }}</i>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+</body>
+</html>

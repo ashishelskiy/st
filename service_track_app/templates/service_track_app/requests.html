@@ -3,27 +3,46 @@
 
 {% block content %}
 <div class="requests-section">
+    <form method="post" action="{% url 'my_requests' %}">
+    {% csrf_token %}
     <div class="requests-header">
         <div class="requests-title">Мои заявки</div>
+<!--        <button id="sendSelectedBtn" class="send-selected-btn" onclick="sendSelectedRequests()">-->
+<!--            📤 Отправить выбранные производителю-->
+<!--        </button>-->
+        <button type="submit" id="sendSelectedBtn" class="send-selected-btn">
+                📤 Отправить выбранные производителю
+            </button>
     </div>
 
     {% if requests %}
-        <div class="requests-table-container">
+<!--        <form method="post" action="{% url 'send_selected_requests' %}">-->
+<!--        <form method="post" action="{% url 'my_requests' %}">-->
+<!--            {% csrf_token %}-->
+            <div class="requests-table-container">
             <table class="requests-table">
                 <thead>
                     <tr>
+                        <th>
+<!--                            <input type="checkbox" class="request-checkbox request-select" id="select-all" onchange="toggleSelectAll()">-->
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="request-checkbox">
+                        </th>
                         <th>№ заявки</th>
                         <th>Серийный номер</th>
                         <th>Модель</th>
                         <th>Покупатель</th>
                         <th>Проблема</th>
-                        <th>Гарантия</th>
+<!--                        <th>Гарантия</th>-->
+                        <th>Статус</th>
                         <th>Дата создания</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for r in requests %}
                         <tr class="request-row" onclick="window.location.href='{% url 'request_detail' r.id %}'">
+                            <td>
+                                <input type="checkbox" class="request-checkbox request-select" name="selected_requests" value="{{ r.id }}" onclick="event.stopPropagation()" onchange="updateSendButton()">
+                            </td>
                             <td class="request-id">#{{ r.id }}</td>
                             <td>{{ r.serial_number }}</td>
                             <td>{{ r.model_name }}</td>
@@ -31,10 +50,19 @@
                             <td title="{{ r.problem_description }}">
                                 {{ r.problem_description|truncatechars:50 }}
                             </td>
+<!--                            <td>-->
+<!--                                {% if r.warranty_status == "warranty" %}-->
+<!--                                    <span class="request-status status-sent">На гарантии</span>-->
+<!--                                {% elif r.warranty_status == "expired" %}-->
+<!--                                    <span class="request-status status-created">Гарантия истекла</span>-->
+<!--                                {% else %}-->
+<!--                                    <span class="request-status status-created">Неизвестно</span>-->
+<!--                                {% endif %}-->
+<!--                            </td>-->
                             <td>
-                                {% if r.warranty_status == "warranty" %}
+                                {% if r.status == "warranty" %}
                                     <span class="request-status status-sent">На гарантии</span>
-                                {% elif r.warranty_status == "expired" %}
+                                {% elif r.status == "expired" %}
                                     <span class="request-status status-created">Гарантия истекла</span>
                                 {% else %}
                                     <span class="request-status status-created">Неизвестно</span>
@@ -46,6 +74,16 @@
                 </tbody>
             </table>
         </div>
+<!--            <button type="submit" id="sendSelectedBtn" class="send-selected-btn">📤 Отправить выбранные производителю</button>-->
+<!--        </form>-->
+    {% elif request.GET.sent == '1' and request.GET.all_sent == '1' %}
+    <div id="requestsTableContainer">
+        <div class="empty-state">
+            <div class="empty-state-icon">✅</div>
+            <div class="empty-state-text">Все заявки отправлены</div>
+            <div class="empty-state-subtext">Создайте новые заявки для отправки производителю</div>
+        </div>
+    </div>
     {% else %}
         <div class="empty-state">
             <div class="empty-state-icon">📋</div>
@@ -53,5 +91,65 @@
             <div class="empty-state-subtext">Создайте первую заявку во вкладке "Создать заявку"</div>
         </div>
     {% endif %}
+    </form>
 </div>
+{# ✅ Сообщения от Django messages #}
+{% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="notification">
+<!--            <div id="notification" class="notification success">-->
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+<!--<div id="notification" class="notification success">Успешно отправлено 1 заявок производителю!</div>-->
+<script>
+    // выделить все
+    /*
+    document.getElementById('select-all').addEventListener('change', function() {
+        let checkboxes = document.querySelectorAll('input[name="selected_requests"]');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+    */
+
+     function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.request-select');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+
+        updateSendButton();
+     }
+
+    function updateSendButton() {
+        const checkboxes = document.querySelectorAll('.request-select:checked');
+        const sendBtn = document.getElementById('sendSelectedBtn');
+
+        if (checkboxes.length > 0) {
+            sendBtn.classList.add('enabled');
+            sendBtn.textContent = `📤 Отправить выбранные (${checkboxes.length}) производителю`;
+        } else {
+            sendBtn.classList.remove('enabled');
+            sendBtn.textContent = '📤 Отправить выбранные производителю';
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+            const notifications = document.querySelectorAll('.notification');
+
+            notifications.forEach(n => {
+                // Показать
+                n.classList.add('show');
+
+                // Через 5 секунд скрыть
+                setTimeout(() => {
+                    n.classList.remove('show');
+                }, 5000); // 5000 миллисекунд = 5 секунд
+            });
+        });
+</script>
 {% endblock %}

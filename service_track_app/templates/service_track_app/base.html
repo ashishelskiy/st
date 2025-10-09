@@ -14,23 +14,34 @@
             <div class="logo">🔧 ServiceTrack</div>
             <div class="subtitle">Система отслеживания ремонтов</div>
         </div>
-
         <div class="nav-menu">
-            <a href="{% url 'tracking' %}" class="nav-item {% if request.resolver_match.url_name == 'tracking' %}active{% endif %}">
+            <a href="{% url 'track_request' %}" class="nav-item {% if request.resolver_match.url_name == 'track_request' %}active{% endif %}">
                 📋 Отследить заявку
             </a>
-            <a href="{% url 'create_request' %}" class="nav-item {% if request.resolver_match.url_name == 'create_request' %}active{% endif %}">
-                ➕ Создать заявку
-            </a>
-            <a href="{% url 'my_requests' %}" class="nav-item {% if request.resolver_match.url_name == 'my_requests' %}active{% endif %}">
-                📄 Мои заявки
-            </a>
-            <a href="{% url 'sent_requests' %}" class="nav-item {% if request.resolver_match.url_name == 'sent_requests' %}active{% endif %}">
-                📦 Отправленные
-            </a>
-            <a href="{% url 'received' %}" class="nav-item {% if request.resolver_match.url_name == 'received' %}active{% endif %}">
-                🏥 Поступившие в СЦ
-            </a>
+            {% if user.is_authenticated %}
+                {% if user.role == 'dealer' %}
+                    <a href="{% url 'create_request' %}" class="nav-item {% if request.resolver_match.url_name == 'create_request' %}active{% endif %}">
+                        ➕ Создать заявку
+                    </a>
+                    <a href="{% url 'my_requests' %}" class="nav-item {% if request.resolver_match.url_name == 'my_requests' %}active{% endif %}">
+                        📄 Мои заявки
+                    </a>
+                    <a href="{% url 'sent_requests' %}" class="nav-item {% if request.resolver_match.url_name == 'sent_requests' %}active{% endif %}">
+                        📦 Отправленные
+                    </a>
+                {% elif user.role == 'service_center' %}
+                    <a href="{% url 'received' %}" class="nav-item {% if request.resolver_match.url_name == 'received' %}active{% endif %}">
+                        🏥 Поступившие в СЦ
+                    </a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="nav-item"}>
+                    Выйти
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-item"}>
+                    Войти
+                </a>
+            {% endif %}
         </div>
 
         <div class="content">

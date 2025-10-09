@@ -3,41 +3,124 @@
 
 {% block content %}
 <div class="request-detail-section">
+    <form method="POST" action="{% url 'request_detail' repair_request.id %}">
+    {% csrf_token %}
     <div class="request-detail-header">
         <div class="request-detail-title">Детали заявки #{{ repair_request.id }} (редактирование)</div>
-    </div>
-    <div class="request-details-actions">
-        <button class="action-btn btn-secondary" onclick="window.location.href='{% url 'my_requests' %}'">← Назад</button>
-<!--        <button class="action-btn btn-primary" id="saveRequestBtn" onclick="saveRequestDetails()" style="">💾 Сохранить</button>-->
-        <button class="action-btn btn-primary" type="submit">Сохранить изменения</button>
 
-    </div>
+        <div class="request-details-actions">
+            <button class="action-btn btn-secondary" type="button" onclick="window.location.href='{% url 'my_requests' %}'">← Назад</button>
+    <!--        <button class="action-btn btn-primary" id="saveRequestBtn" onclick="saveRequestDetails()" style="">💾 Сохранить</button>-->
+            <button class="action-btn btn-primary" type="submit">💾 Сохранить</button>
 
-    <form method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_serial_number">Серийный номер</label>
-            {{ form.serial_number }}
         </div>
-        <div class="form-group">
-            <label for="id_model_name">Модель товара</label>
-            {{ form.model_name }}
+    </div>
+        <div class="request-details-form">
+
+<!--    <form method="POST" action="{% url 'update_request_status' repair_request.id %}">-->
+<!--        {% csrf_token %}-->
+        <input type="hidden" name="request_id" value="{{ repair_request.id }}">
+<!--        <div class="form-group">-->
+<!--            <label for="id_serial_number">Серийный номер</label>-->
+<!--            {{ form.serial_number }}-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="id_model_name">Модель товара</label>-->
+<!--            {{ form.model_name }}-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="id_purchase_date">Дата покупки</label>-->
+<!--            {{ form.purchase_date }}-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="id_warranty_status">Статус гарантии</label>-->
+<!--            {{ form.warranty_status }}-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="id_problem_description">Описание неисправности</label>-->
+<!--            {{ form.problem_description }}-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="id_status">Статус</label>-->
+<!--            {{ form.status }}-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <label for="id_problem_description">Комментарии</label>-->
+<!--            {{ form.additional_notes }}-->
+<!--        </div>-->
+        <div class="details-row">
+            <div class="details-group">
+                <label for="id_serial_number" class="details-label">Серийный номер</label>
+                {{ form.serial_number }}
+            </div>
+            <div class="details-group">
+                <label for="id_model_name" class="details-label">Модель товара</label>
+                {{ form.model_name }}
+            </div>
         </div>
-        <div class="form-group">
-            <label for="id_purchase_date">Дата покупки</label>
-            {{ form.purchase_date }}
+
+        <div class="details-row">
+            <div class="details-group">
+                <label for="id_purchase_date" class="details-label">Дата покупки</label>
+                {{ form.purchase_date }}
+            </div>
+            <div class="details-group">
+                <label for="id_warranty_status" class="details-label">Статус гарантии</label>
+                {{ form.warranty_status }}
+            </div>
         </div>
-        <div class="form-group">
-            <label for="id_warranty_status">Статус гарантии</label>
-            {{ form.warranty_status }}
+
+        <div class="details-row">
+            <div class="details-group" style="grid-column: 1 / -1;">
+                <label for="id_problem_description" class="details-label">Описание неисправности</label>
+                {{ form.problem_description }}
+            </div>
         </div>
-        <div class="form-group">
-            <label for="id_problem_description">Описание неисправности</label>
-            {{ form.problem_description }}
+
+        <div class="details-row">
+            <div class="details-group" style="grid-column: 1 / -1;">
+                <label for="id_status" class="details-label">Статус</label>
+                {{ form.status }}
+            </div>
+        </div>
+        <div class="details-row">
+            <div class="details-group" style="grid-column: 1 / -1;">
+                <label for="id_problem_description" class="details-label">Комментарии</label>
+                {{ form.additional_notes }}
+            </div>
+        </div>
+        <div class="details-row">
+            <div class="details-group" style="grid-column: 1 / -1;">
+                <div class="details-label">Фотографии</div>
+                <div class="photo-gallery" id="detailsPhotoGallery">
+                    {% if photos %}
+                        {% for p in photos %}
+                            <div class="photo-item">
+                                <img src="{{ p.photo.url }}" alt="{{ p.photo.name }}" class="photo-image" onclick="viewPhoto('{{ p.photo.url }}')">
+                                <button class="photo-overlay" onclick="removePhoto({{ p.photo.id }})" title="Удалить фото">×</button>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="color: #666; font-style: italic; padding: 20px; text-align: center;">
+                            Фотографии не добавлены
+                        </div>
+                    {% endif %}
+<!--                    <div class="photo-item">-->
+<!--                        <img src="MacheteMF-12RD2D4_1.png" alt="MacheteMF-12RD2D4_1.png" class="photo-image" onclick="viewPhoto('MacheteMF-12RD2D4_1.png')">-->
+<!--                        <button class="photo-overlay" onclick="removePhoto(0)" title="Удалить фото">×</button>-->
+<!--                    </div>-->
+
+<!--                    <div class="photo-item">-->
+<!--                        <img src="MacheteMF-12RD2D4_2.png" alt="MacheteMF-12RD2D4_2.png" class="photo-image" onclick="viewPhoto('MacheteMF-12RD2D4_2.png')">-->
+<!--                        <button class="photo-overlay" onclick="removePhoto(1)" title="Удалить фото">×</button>-->
+<!--                    </div>-->
+                </div>
+            </div>
         </div>
         <!-- Добавьте остальные поля формы по необходимости -->
 
-        <button type="submit">Сохранить изменения</button>
+<!--        <button type="submit">Сохранить изменения</button>-->
+        </div>
     </form>
 </div>
 {% endblock %}

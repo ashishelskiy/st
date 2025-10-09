@@ -1,16 +1,14 @@
 {% extends "service_track_app/base.html" %}
-{% block title %}Поступившие в СЦ{% endblock %}
+{% block title %}Поступившие заявки{% endblock %}
 
 {% block content %}
 <div class="received-section">
-    <div class="received-header">
-        <div class="received-title">Поступившие в СЦ</div>
-    </div>
 
+    <!-- Фильтры и переключение -->
     <div class="filter-controls">
-        <button onclick="toggleReceivedView('packages')">📦 Пакеты</button>
-        <button onclick="toggleReceivedView('requests')">📄 Заявки</button>
-        <select onchange="filterReceivedStatus(this.value)">
+        <button type="button" onclick="toggleReceivedView('packages')">📦 Пакеты</button>
+        <button type="button" onclick="toggleReceivedView('requests')">📄 Заявки</button>
+        <select id="statusFilter" onchange="filterReceivedStatus(this.value)">
             <option value="all">Все</option>
             <option value="received">Поступил</option>
             <option value="inprogress">В работе</option>
@@ -18,44 +16,82 @@
         </select>
     </div>
 
-    {% if repair_requests %}
-        <div class="requests-table-container">
-            <table class="requests-table">
-                <thead>
-                    <tr>
-                        <th>№ заявки</th>
-                        <th>Серийный номер</th>
-                        <th>Модель</th>
-                        <th>Статус</th>
-                        <th>Дата поступления</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for request in repair_requests %}
-                        <tr class="request-row">
-                            <td class="request-id">#{{ request.id }}</td>
-                            <td>{{ request.serial_number }}</td>
-                            <td>{{ request.model_name }}</td>
-                            <td>
-                                {% if request.warranty_status == "warranty" %}
-                                    <span class="request-status status-sent">На гарантии</span>
-                                {% elif request.warranty_status == "expired" %}
-                                    <span class="request-status status-created">Гарантия истекла</span>
-                                {% else %}
-                                    <span class="request-status status-created">Неизвестно</span>
-                                {% endif %}
-                            </td>
-                            <td class="request-date">{{ request.created_at|date:"d.m.Y H:i" }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- Блок с пакетами -->
+    <div id="receivedPackages" style="display:block;">
+        {% for p in packages %}
+        <div class="package-card" onclick="window.location.href='{% url 'package_detail' p.id %}'">
+            <div class="package-header">
+<!--                <div class="package-date">📦 Пакет от {{ p.created_at|date:"d.m.Y" }}</div>-->
+                <div class="package-date">📦 {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+                <div class="package-count">{{ p.request_count }} заявок</div>
+            </div>
+            <div class="package-info">
+                <div class="package-info-item">
+                    <span>🕒</span>
+                    <span>Отправлено в {{ p.created_at|date:"H:i" }}</span>
+                </div>
+<!--                <div class="package-info-item">-->
+<!--                    <span>🏢</span>-->
+<!--                    <span>{{ p.dealer_company }}</span>-->
+<!--                </div>-->
+            </div>
         </div>
-    {% else %}
-        <div class="empty-state">
-            <div class="empty-state-icon">📋</div>
-            <div class="empty-state-text">Нет заявок для отображения</div>
-        </div>
-    {% endif %}
+        {% empty %}
+            <p>Нет отправленных пакетов</p>
+        {% endfor %}
+    </div>
+
+    <!-- Блок с отдельными заявками -->
+    <div id="receivedRequests" style="display:none;">
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th>№ заявки</th>
+                    <th>Серийный номер</th>
+                    <th>Модель</th>
+                    <th>Покупатель</th>
+                    <th>Проблема</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in repair_requests %}
+                <tr class="request-row" onclick="window.location.href='{% url 'request_detail' r.id %}'">
+                    <td>#{{ r.id }}</td>
+                    <td>{{ r.serial_number }}</td>
+                    <td>{{ r.model_name }}</td>
+                    <td>{{ r.customer_name }}</td>
+                    <td>{{ r.problem_description|truncatechars:50 }}</td>
+                    <td>{{ r.get_status_display }}</td>
+                    <td>{{ r.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                    <tr><td colspan="7">Нет заявок</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 </div>
+
+<script>
+function toggleReceivedView(view) {
+    document.getElementById('receivedPackages').style.display = (view === 'packages') ? 'block' : 'none';
+    document.getElementById('receivedRequests').style.display = (view === 'requests') ? 'block' : 'none';
+}
+
+// Пример фильтрации по статусу
+function filterReceivedStatus(status) {
+    let rows = document.querySelectorAll('#receivedRequests tbody tr');
+    rows.forEach(row => {
+        if (status === 'all' || row.cells[5].textContent.toLowerCase() === status.toLowerCase()) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+
 {% endblock %}
