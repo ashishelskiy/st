@@ -182,17 +182,13 @@ def sent_requests_view(request):
         return redirect('sent_requests')
     else:
         if request.user.role == 'dealer':
-            requests = RepairRequest.objects.filter(sent_at__isnull=False)
+            # requests = RepairRequest.objects.filter(sent_at__isnull=False)
+            packages = Package.objects.filter(created_by=request.user)
         elif request.user.role == 'service_center':
-            requests = RepairRequest.objects.filter(sent_at__isnull=False)
-
-        packages = Package.objects.all()
-
-        print(packages)
-        for p in packages:
-            print(p.created_at)
-            print(p.dealer_company)
-            print(p.request_count)
+            # requests = RepairRequest.objects.filter(sent_at__isnull=False)
+            packages = Package.objects.all()
+        else:
+            packages = Package.objects.none()
 
         return render(request, "service_track_app/sent.html", {"packages": packages})
     # return redirect('sent_requests')

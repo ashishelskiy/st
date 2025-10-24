@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator
 from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import FileExtensionValidator
 
 
 class CustomUser(AbstractUser):
@@ -128,6 +129,20 @@ class RepairRequestPhoto(models.Model):
 
     def __str__(self):
         return f"Фото для {self.repair_request.serial_number}"
+
+
+class RepairRequestVideo(models.Model):
+    repair_request = models.ForeignKey(RepairRequest, on_delete=models.CASCADE, related_name='videos')
+    video = models.FileField(
+        "Видео товара",
+        upload_to='repair_videos/',
+        validators=[
+            FileExtensionValidator(allowed_extensions=['mp4', 'avi', 'mov', 'wmv']),
+        ]
+    )
+
+    def __str__(self):
+        return f"Видео для {self.repair_request.serial_number}"
 
 
 class RequestHistory(models.Model):

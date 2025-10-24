@@ -15,6 +15,7 @@
         <div id="packagesListContainer">
             <div class="requests-title" style="margin-bottom: 30px;">Отправленные пакеты заявок</div>
             <div id="packagesContainer">
+                {% if packages %}
                 {% for p in packages %}
 <!--                    <div class="package-card" onclick="showPackageDetails('02.10.2025')">-->
                     <div class="package-card" onclick="window.location.href='{% url 'package_detail' p.id %}'">
@@ -45,6 +46,13 @@
 <!--                        </a>-->
                     </div>
                 {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">У вас пока нет пакетовк</div>
+<!--                        <div class="empty-state-subtext">Создайте первую заявку во вкладке "Создать заявку"</div>-->
+                    </div>
+                {% endif %}
             </div>
         </div>
 
