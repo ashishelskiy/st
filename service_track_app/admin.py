@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, RepairRequest, DealerCompany, RequestHistory, RepairRequestPhoto
+from .models import CustomUser, RepairRequest, DealerCompany, RequestHistory, RepairRequestPhoto, RepairRequestVideo, Product
 
 
 # admin.site.register(CustomUser, UserAdmin)
@@ -23,5 +23,7 @@ admin.site.register(RepairRequest)
 admin.site.register(DealerCompany)
 admin.site.register(RequestHistory)
 admin.site.register(RepairRequestPhoto)
+admin.site.register(RepairRequestVideo)
+admin.site.register(Product)
 
 

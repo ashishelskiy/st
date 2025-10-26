@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Загрузка видео с превью</title>
+<style>
+    .file-preview {
+        margin-top: 20px;
+    }
+    .file-preview-item {
+        margin-bottom: 15px;
+    }
+    video {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        display: block;
+    }
+    .file-preview-info {
+        font-size: 14px;
+        color: #333;
+        margin-top: 5px;
+    }
+    .file-remove-btn {
+        background: red;
+        color: white;
+        border: none;
+        padding: 5px;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+    .drag-over {
+        border: 2px dashed #00f;
+        background-color: #e0e0e0;
+    }
+    .drop-container {
+        border: 2px dashed #aaa;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<h2>Загрузка видео</h2>
+
+<!-- Кнопка выбора файлов -->
+<input type="file" id="videoUpload" accept="video/*" multiple>
+
+<!-- Drag & Drop зона -->
+<div class="drop-container" id="dropArea">Перетащите видео сюда</div>
+
+<!-- Превью видео -->
+<div id="videoPreview" class="file-preview"></div>
+
+<script>
+let uploadedVideos = []; // Массив для хранения файлов
+
+const videoInput = document.getElementById('videoUpload');
+const dropArea = document.getElementById('dropArea');
+const previewContainer = document.getElementById('videoPreview');
+
+// === Обработчик выбора файлов через кнопку ===
+videoInput.addEventListener('change', handleVideoUpload);
+
+function handleVideoUpload(event) {
+    const input = event.target;
+    const files = Array.from(input.files);
+
+    files.forEach(file => {
+        if (!uploadedVideos.some(v => v.name === file.name)) {
+            uploadedVideos.push(file);
+            addVideoPreview(file);
+        }
+    });
+
+    // Сбрасываем input, чтобы можно было выбрать тот же файл снова
+    input.value = '';
+}
+
+// === Добавление превью видео ===
+function addVideoPreview(file) {
+    const url = URL.createObjectURL(file);
+    const item = document.createElement('div');
+    item.classList.add('file-preview-item');
+
+    item.innerHTML = `
+        <video src="${url}" controls class="file-preview-video"></video>
+        <div class="file-preview-info">
+            <div class="file-preview-name">${file.name}</div>
+            <div class="file-preview-size">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+        </div>
+        <button type="button" class="file-remove-btn" onclick="removeVideo('${file.name}')">×</button>
+    `;
+    previewContainer.appendChild(item);
+}
+
+// === Удаление видео ===
+function removeVideo(name) {
+    uploadedVideos = uploadedVideos.filter(f => f.name !== name);
+
+    // Очищаем превью и заново рендерим оставшиеся видео
+    previewContainer.innerHTML = '';
+    uploadedVideos.forEach(f => addVideoPreview(f));
+}
+
+// === Drag & Drop ===
+dropArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropArea.classList.add('drag-over');
+});
+
+dropArea.addEventListener('dragleave', e => {
+    e.preventDefault();
+    dropArea.classList.remove('drag-over');
+});
+
+dropArea.addEventListener('drop', e => {
+    e.preventDefault();
+    dropArea.classList.remove('drag-over');
+
+    const files = Array.from(e.dataTransfer.files);
+    const dt = new DataTransfer();
+    files.forEach(file => dt.items.add(file));
+    videoInput.files = dt.files;
+
+    handleVideoUpload({ target: videoInput });
+});
+</script>
+
+</body>
+</html>

@@ -16,7 +16,7 @@
         </div>
         <div class="nav-menu">
             <a href="{% url 'track_request' %}" class="nav-item {% if request.resolver_match.url_name == 'track_request' %}active{% endif %}">
-                📋 Отследить заявку
+                📋 Отследить ремонт
             </a>
             {% if user.is_authenticated %}
                 {% if user.role == 'dealer' %}
@@ -34,9 +34,22 @@
                         🏥 Поступившие в СЦ
                     </a>
                 {% endif %}
-                <a href="{% url 'logout' %}" class="nav-item"}>
-                    Выйти
-                </a>
+<!--                <a href="{% url 'logout' %}" class="nav-item"}>-->
+<!--                    Выйти-->
+<!--                </a>-->
+                <div class="user-menu">
+                    <div class="user-avatar" id="userAvatar">
+                        {{ user.username|first|upper }}
+                    </div>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+                            <div class="user-email">{{ user.email }}</div>
+                        </div>
+                        <a href="{% url 'logout' %}" class="logout-btn">Выйти</a>
+                    </div>
+                </div>
             {% else %}
                 <a href="{% url 'login' %}" class="nav-item"}>
                     Войти
@@ -50,5 +63,22 @@
     </div>
 
     <script src="{% static 'js/app.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatar = document.getElementById('userAvatar');
+        const dropdown = document.getElementById('userDropdown');
+
+        avatar.addEventListener('click', function() {
+            dropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    });
+    </script>
+
 </body>
 </html>

@@ -1,0 +1,470 @@
+[
+  {
+    "model": "Black Hydra Delta 10S",
+    "price": "8990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/black-hydra-delta-10s/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Black Hydra",
+      "Серия": "Delta",
+      "Мощность MAX": "500 Вт",
+      "Мощность RMS": "250 Вт"
+    },
+    "product_id": "123"
+  },
+  {
+    "model": "Hannibal HS-600",
+    "price": "5290 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/hannibal-hs-600/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Hannibal",
+      "Мощность MAX": "600 Вт",
+      "Мощность RMS": "300 Вт"
+    },
+    "product_id": "118"
+  },
+  {
+    "model": "Black Hydra Delta 12S",
+    "price": "9590 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/black-hydra-delta-12s/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Black Hydra",
+      "Серия": "Delta",
+      "Мощность MAX": "500 Вт",
+      "Мощность RMS": "250 Вт"
+    },
+    "product_id": "124"
+  },
+  {
+    "model": "Machete MF-12R D2/D4",
+    "price": "11390 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-mf-12r-d2-d4/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "2400 Вт",
+      "Мощность RMS": "1200 Вт"
+    },
+    "product_id": "103"
+  },
+  {
+    "model": "Machete MF-15R D2/D4",
+    "price": "12390 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-mf-15r-d2-d4/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "2400 Вт",
+      "Мощность RMS": "1200 Вт"
+    },
+    "product_id": "104"
+  },
+  {
+    "model": "Machete MF-12S D2/D4",
+    "price": "9390 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-mf-12s-d2-d4/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1600 Вт",
+      "Мощность RMS": "800 Вт"
+    },
+    "product_id": "109"
+  },
+  {
+    "model": "Machete MF-15S D2/D4",
+    "price": "10390 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-mf-15s-d2-d4/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1600 Вт",
+      "Мощность RMS": "800 Вт"
+    },
+    "product_id": "120"
+  },
+  {
+    "model": "Apocalypse DB-SA302 D1/D2",
+    "price": "23990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa302-d1-d2/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "4000 Вт",
+      "Мощность RMS": "2000 Вт"
+    },
+    "product_id": "67"
+  },
+  {
+    "model": "Apocalypse DB-SA305 D1/D2",
+    "price": "26990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa305-d1-d2/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "4000 Вт",
+      "Мощность RMS": "2000 Вт"
+    },
+    "product_id": "68"
+  },
+  {
+    "model": "Apocalypse DB-SA272 D1/D2",
+    "price": "19190 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa272-d1-d2/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "3000 Вт",
+      "Мощность RMS": "1500 Вт"
+    },
+    "product_id": "65"
+  },
+  {
+    "model": "Apocalypse DB-SA275 D1/D2",
+    "price": "21590 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa275-d1-d2/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "3000 Вт",
+      "Мощность RMS": "1500 Вт"
+    },
+    "product_id": "66"
+  },
+  {
+    "model": "Apocalypse DB-SA255 D1/D2",
+    "price": "18190 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa255-d1-d2/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "2000 Вт",
+      "Мощность RMS": "1000 Вт"
+    },
+    "product_id": "70"
+  },
+  {
+    "model": "Apocalypse DB-SA252 D1/D2",
+    "price": "16190 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa252-d1-d2/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "2000 Вт",
+      "Мощность RMS": "1000 Вт"
+    },
+    "product_id": "69"
+  },
+  {
+    "model": "Machete ML-12A",
+    "price": "17590 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-ml-12a/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1000 Вт",
+      "Мощность RMS": "250 Вт"
+    },
+    "product_id": "116"
+  },
+  {
+    "model": "Machete ML-10A",
+    "price": "16990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-ml-10a/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1000 Вт",
+      "Мощность RMS": "250 Вт"
+    },
+    "product_id": "115"
+  },
+  {
+    "model": "Machete ML-12R D2/D4",
+    "price": "6990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-ml-12r-d2-d4/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1000 Вт",
+      "Мощность RMS": "500 Вт"
+    },
+    "product_id": "106"
+  },
+  {
+    "model": "Machete ML-12S D2",
+    "price": "5690 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-ml-12s-d2/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "600 Вт",
+      "Мощность RMS": "300 Вт"
+    },
+    "product_id": "107"
+  },
+  {
+    "model": "Machete MF-10S D2/D4",
+    "price": "8990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-mf-10s-d2/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1600 Вт",
+      "Мощность RMS": "800 Вт"
+    },
+    "product_id": "108"
+  },
+  {
+    "model": "Machete ML-10R D2",
+    "price": "6790 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-ml-10r-d2-d4/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1000 Вт",
+      "Мощность RMS": "500 Вт"
+    },
+    "product_id": "105"
+  },
+  {
+    "model": "Machete ML-10S D2",
+    "price": "5490 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-ml-10s-d2/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "600 Вт",
+      "Мощность RMS": "300 Вт"
+    },
+    "product_id": "113"
+  },
+  {
+    "model": "Apocalypse DB-3512R D1/D2",
+    "price": "52990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-3512r-d1-d2/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "7000 Вт",
+      "Мощность RMS": "3500 Вт"
+    },
+    "product_id": "99"
+  },
+  {
+    "model": "Apocalypse DB-4515R D1/D2",
+    "price": "89990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-4515r-d1-d2/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "9000 Вт",
+      "Мощность RMS": "4500 Вт"
+    },
+    "product_id": "101"
+  },
+  {
+    "model": "Apocalypse DB-4512R D1/D2",
+    "price": "85990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-4512r-d1-d2/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "9000 Вт",
+      "Мощность RMS": "4500 Вт"
+    },
+    "product_id": "117"
+  },
+  {
+    "model": "Apocalypse DB-4518R D1/D2",
+    "price": "95990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-4518r-d1-d2/",
+    "specifications": {
+      "Размер": "18 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "9000 Вт",
+      "Мощность RMS": "4500 Вт"
+    },
+    "product_id": "102"
+  },
+  {
+    "model": "Apocalypse DB-SA2510 D1/D2",
+    "price": "15590 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa2510-d1-d2/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "2000 Вт",
+      "Мощность RMS": "1000 Вт"
+    },
+    "product_id": "112"
+  },
+  {
+    "model": "Apocalypse DB-SA2508 D1/D2",
+    "price": "13990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-sa2508-d1-d2/",
+    "specifications": {
+      "Размер": "8 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "1600 Вт",
+      "Мощность RMS": "800 Вт"
+    },
+    "product_id": "111"
+  },
+  {
+    "model": "Machete MF-08S D2/D4",
+    "price": "7990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/machete-mf-08s-d2-d4/",
+    "specifications": {
+      "Размер": "8 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Machete",
+      "Мощность MAX": "1200 Вт",
+      "Мощность RMS": "600 Вт"
+    },
+    "product_id": "110"
+  },
+  {
+    "model": "Black Hydra Gamma-12",
+    "price": "14990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/black-hydra-gamma-12/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Black Hydra",
+      "Серия": "Gamma",
+      "Мощность MAX": "800 Вт",
+      "Мощность RMS": "400 Вт"
+    },
+    "product_id": "122"
+  },
+  {
+    "model": "Black Hydra Gamma-10",
+    "price": "13990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/black-hydra-gamma-10/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Black Hydra",
+      "Серия": "Gamma",
+      "Мощность MAX": "800 Вт",
+      "Мощность RMS": "400 Вт"
+    },
+    "product_id": "121"
+  },
+  {
+    "model": "Apocalypse DPW-1030",
+    "price": "13990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-dpw-1030/",
+    "specifications": {
+      "Размер": "10 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "1000 Вт",
+      "Мощность RMS": "800 Вт"
+    },
+    "product_id": "114"
+  },
+  {
+    "model": "Hannibal HS-1200",
+    "price": "6190 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/hannibal-hs-1200/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Hannibal",
+      "Мощность MAX": "1200 Вт",
+      "Мощность RMS": "600 Вт"
+    },
+    "product_id": "119"
+  },
+  {
+    "model": "Apocalypse DPW-1540",
+    "price": "19590 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-dpw-1540/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "2000 Вт",
+      "Мощность RMS": "1000 Вт"
+    },
+    "product_id": "80"
+  },
+  {
+    "model": "Apocalypse DB-3515R D1/D2",
+    "price": "59990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-3515r-d1-d2/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "7000 Вт",
+      "Мощность RMS": "3500 Вт"
+    },
+    "product_id": "100"
+  },
+  {
+    "model": "Apocalypse DB-3012R D1/D2",
+    "price": "36990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-3012r-d1-d2/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "5600 Вт",
+      "Мощность RMS": "2800 Вт"
+    },
+    "product_id": "81"
+  },
+  {
+    "model": "Apocalypse DPW-1240",
+    "price": "17990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-dpw-1240/",
+    "specifications": {
+      "Размер": "12 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "2000 Вт",
+      "Мощность RMS": "1000 Вт"
+    },
+    "product_id": "79"
+  },
+  {
+    "model": "Apocalypse DB-3015R D1/D2",
+    "price": "39990 ₽",
+    "url": "https://alphardaudio.ru/products/subwoofers/apocalypse-db-3015r-d1-d2/",
+    "specifications": {
+      "Размер": "15 дюймов",
+      "Бренд": "Deaf Bonce",
+      "Серия": "Apocalypse",
+      "Мощность MAX": "5600 Вт",
+      "Мощность RMS": "2800 Вт"
+    },
+    "product_id": "82"
+  }
+]

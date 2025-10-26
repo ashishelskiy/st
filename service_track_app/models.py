@@ -38,9 +38,24 @@ class DealerCompany(models.Model):
 
 
 class Package(models.Model):
+    STATUS_CHOICES = (
+        ('sent', 'Отправлен производителю'),
+        ('accepted', 'Принят производителем'),
+        ('returned', 'Возвращен дилеру'),
+        ('processing', 'В обработке у производителя'),
+    )
     created_at = models.DateTimeField(auto_now_add=True)  # дата и время создания пакета
     dealer_company = models.ForeignKey("DealerCompany", on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey("CustomUser", on_delete=models.SET_NULL, null=True, blank=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='sent',
+        verbose_name="Статус пакета"
+    )
+    returned_at = models.DateTimeField("Дата возврата", null=True, blank=True)
+    return_reason = models.TextField("Причина возврата", blank=True, null=True)
 
     def __str__(self):
         return f"Пакет #{self.id} — {self.created_at.strftime('%d.%m.%Y %H:%M')}"
@@ -55,6 +70,54 @@ phone_validator = RegexValidator(
     regex=r'^\+?\d{1,4}?[-\s]?\(?\d{1,3}?\)?[-\s]?\d{1,4}[-\s]?\d{1,4}[-\s]?\d{1,9}$',
     message="Телефон должен быть в формате +7 (999) 123-45-67"
 )
+
+
+class Product(models.Model):
+    PRODUCT_CATEGORIES = [
+        ('subwoofer', 'Сабвуфер'),
+        ('amplifier', 'Усилитель'),
+        ('speaker', 'Динамик'),
+        ('component', 'Компонентная акустика'),
+        ('coaxial', 'Коаксиальная акустика'),
+        ('midrange', 'Мидрейндж'),
+        ('tweeter', 'Твитер'),
+        ('accessory', 'Аксессуар'),
+    ]
+
+    name = models.CharField(max_length=200, verbose_name="Название модели", unique=True)
+    brand = models.CharField(max_length=100, verbose_name="Бренд", blank=True, null=True)
+    series = models.CharField(max_length=100, verbose_name="Серия", blank=True, null=True)
+    category = models.CharField(max_length=50, choices=PRODUCT_CATEGORIES, verbose_name="Категория", default='subwoofer')
+    size = models.CharField(max_length=50, verbose_name="Размер", blank=True, null=True)
+    power_rms = models.CharField(max_length=50, verbose_name="Мощность RMS", blank=True, null=True)
+    power_max = models.CharField(max_length=50, verbose_name="Мощность MAX", blank=True, null=True)
+    external_id = models.CharField(max_length=50, verbose_name="Внешний ID", blank=True, null=True)
+    external_url = models.URLField(verbose_name="Ссылка на товар", blank=True, null=True)
+    is_active = models.BooleanField(default=True, verbose_name="Активный")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+
+    class Meta:
+        verbose_name = "Товар"
+        verbose_name_plural = "Товары"
+        ordering = ['brand', 'name']
+
+    def __str__(self):
+        if self.brand:
+            return f"{self.brand} {self.name}"
+        return self.name
+
+    def display_name(self):
+        """Красивое отображение для выпадающих списков"""
+        parts = []
+        if self.brand:
+            parts.append(self.brand)
+        parts.append(self.name)
+        if self.size:
+            parts.append(f"({self.size})")
+        if self.power_rms:
+            parts.append(f"{self.power_rms} RMS")
+        return " ".join(parts)
+
 
 class RepairRequest(models.Model):
     STATUS_CHOICES = [
@@ -75,12 +138,19 @@ class RepairRequest(models.Model):
     WARRANTY_CHOICES = [
         ('warranty', 'На гарантию'),
         ('paid_repair', 'На платный ремонт'),
+        ('diagnostics', 'На диагностику/ремонт'),
         # ('expired', 'Гарантия истекла'),
-        ('unknown', 'Неизвестно'),
+        # ('unknown', 'Неизвестно'),
     ]
 
     serial_number = models.CharField("Серийный номер товара", max_length=50)
-    model_name = models.CharField("Модель товара", max_length=100)
+    # model_name = models.CharField("Модель товара", max_length=100)
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        verbose_name="Товар",
+        related_name='repair_requests'
+    )
     purchase_date = models.DateField("Дата покупки")
     warranty_status = models.CharField(
         "Статус гарантии",
@@ -89,9 +159,9 @@ class RepairRequest(models.Model):
     )
     problem_description = models.TextField("Описание неисправности")
 
-    customer_name = models.CharField("ФИО покупателя", max_length=150)
+    customer_name = models.CharField("ФИО покупателя", max_length=150, blank=True, null=True)
     # customer_phone = models.CharField("Телефон", max_length=30)
-    customer_phone = PhoneNumberField("Телефон покупателя", blank=False)
+    customer_phone = PhoneNumberField("Телефон покупателя", blank=True, null=True)
     customer_email = models.EmailField("Email покупателя", blank=True, null=True)
 
     # dealer_name = models.CharField("Название дилера", max_length=150)

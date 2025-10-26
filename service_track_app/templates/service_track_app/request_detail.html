@@ -50,12 +50,12 @@
 <!--        </div>-->
         <div class="details-row">
             <div class="details-group">
-                <label for="id_serial_number" class="details-label">Серийный номер</label>
+                <label for="id_serial_number" class="details-label">Серийный номер товара</label>
                 {{ form.serial_number }}
             </div>
             <div class="details-group">
-                <label for="id_model_name" class="details-label">Модель товара</label>
-                {{ form.model_name }}
+                <label for="id_model_name" class="details-label">Товар</label>
+                {{ form.product }}
             </div>
         </div>
 
@@ -95,9 +95,20 @@
                 <div class="photo-gallery" id="detailsPhotoGallery">
                     {% if photos %}
                         {% for p in photos %}
-                            <div class="photo-item">
-                                <img src="{{ p.photo.url }}" alt="{{ p.photo.name }}" class="photo-image" onclick="viewPhoto('{{ p.photo.url }}')">
-                                <button class="photo-overlay" onclick="removePhoto({{ p.photo.id }})" title="Удалить фото">×</button>
+<!--                            <div class="photo-item">-->
+<!--                                <img src="{{ p.photo.url }}" alt="{{ p.photo.name }}" class="photo-image" onclick="viewPhoto('{{ p.photo.url }}')">-->
+<!--                                <button class="photo-overlay" onclick="removePhoto({{ p.photo.id }})" title="Удалить фото">×</button>-->
+<!--                            </div>-->
+                            <div class="photo-item" style="position: relative; display: inline-block; margin: 5px; width: 150px; height: 150px; overflow: hidden; border-radius: 10px;">
+                                <img src="{{ p.photo.url }}" alt="{{ p.photo.name }}"
+                                     style="display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; cursor: pointer;"
+                                     onclick="viewPhoto('{{ p.photo.url }}')">
+                                <button class="photo-overlay"
+                                        onclick="removePhoto({{ p.id }})"
+                                        title="Удалить фото"
+                                        style="position:absolute; top:5px; right:5px; background:#0008; color:white; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer;">
+                                    ×
+                                </button>
                             </div>
                         {% endfor %}
                     {% else %}
@@ -117,6 +128,46 @@
                 </div>
             </div>
         </div>
+        <div class="details-row">
+            <div class="details-group" style="grid-column: 1 / -1;">
+                <div class="details-label">Видео</div>
+                <div class="video-gallery" id="detailsVideoGallery">
+                    {% if videos %}
+                        {% for v in videos %}
+<!--                            <div class="video-item" style="position: relative; display: inline-block; margin: 5px;">-->
+<!--                                <video controls width="320" height="240" class="video-preview" style="border-radius: 10px;">-->
+<!--                                    <source src="{{ v.video.url }}" type="video/mp4">-->
+<!--                                    Ваш браузер не поддерживает видео.-->
+<!--                                </video>-->
+<!--                                <button class="video-overlay"-->
+<!--                                        onclick="removeVideo({{ v.id }})"-->
+<!--                                        title="Удалить видео"-->
+<!--                                        style="position:absolute; top:5px; right:5px; background:#0008; color:white; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer;">-->
+<!--                                    ×-->
+<!--                                </button>-->
+<!--                            </div>-->
+                            <div class="video-item" style="position: relative; display: inline-block; margin: 5px; width: 320px; height: 240px; overflow: hidden; border-radius: 10px;">
+                                <video controls style="display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+                                    <source src="{{ v.video.url }}" type="video/mp4">
+                                    Ваш браузер не поддерживает видео.
+                                </video>
+                                <button class="video-overlay"
+                                        onclick="removeVideo({{ v.id }})"
+                                        title="Удалить видео"
+                                        style="position:absolute; top:5px; right:5px; background:#0008; color:white; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer;">
+                                    ×
+                                </button>
+                            </div>
+
+                        {% endfor %}
+                    {% else %}
+                        <div style="color: #666; font-style: italic; padding: 20px; text-align: center;">
+                            Видео не добавлено
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
         <!-- Добавьте остальные поля формы по необходимости -->
 
 <!--        <button type="submit">Сохранить изменения</button>-->
@@ -126,6 +177,9 @@
 <script>
 function viewPhoto(url) {
     // Простое открытие фото в новом окне
+    window.open(url, '_blank');
+}
+function viewVideo(url) {
     window.open(url, '_blank');
 }
 </script>

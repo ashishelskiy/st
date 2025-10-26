@@ -1094,3 +1094,221 @@ body {
     color: #333;
 }
 
+/* new */
+.user-menu {
+    position: relative;
+    margin-left: auto;
+    padding: 10px 20px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 20px;
+    top: 60px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    width: 220px;
+    z-index: 100;
+    animation: fadeIn 0.3s ease;
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+.user-info {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.user-email {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.logout-btn {
+    display: block;
+    text-align: center;
+    padding: 12px 20px;
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #f8d7da;
+}
+/* Статусы пакетов */
+.package-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-returned {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-sent {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.status-accepted {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+}
+/* Статусы пакетов */
+/* Для фильтров пакетов */
+.filters-section {
+    margin: 25px 0;
+    padding: 0;
+}
+
+.filters-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filters-title {
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.filters-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filter-btn:hover {
+    border-color: #007bff;
+    color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,123,255,0.15);
+    text-decoration: none;
+}
+
+.filter-btn-active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.25);
+}
+
+.filter-btn-active:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.filter-icon {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .filters-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .filters-container {
+        width: 100%;
+    }
+
+    .filter-btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+}
+/* Для фильтров пакетов */
+/* Для фильтров пакетов 2 */
+/*
+.tab-filters {
+    display: inline-flex;
+    background: #f8f9fa;
+    padding: 4px;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.tab-filter {
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.tab-filter:hover {
+    background: white;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.tab-filter-active {
+    background: white;
+    color: #007bff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+*/
+/* Для фильтров пакетов 2 */

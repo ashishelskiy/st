@@ -12,6 +12,51 @@
             <span class="breadcrumb-current" id="breadcrumbCurrent" style="display: none;"></span>
         </div>
 
+<!--        <div class="filters" style="margin: 20px 0;">-->
+<!--            <a href="?status=all" class="filter-btn {% if current_status == 'all' %}active{% endif %}">Все</a>-->
+<!--            <a href="?status=sent" class="filter-btn {% if current_status == 'sent' %}active{% endif %}">Отправленные</a>-->
+<!--            <a href="?status=returned" class="filter-btn {% if current_status == 'returned' %}active{% endif %}">Возвращенные</a>-->
+<!--            <a href="?status=accepted" class="filter-btn {% if current_status == 'accepted' %}active{% endif %}">Принятые</a>-->
+<!--        </div>-->
+        <div class="filters-section">
+            <div class="filters-header">
+                <span class="filters-title">Фильтры:</span>
+                <div class="filters-container">
+                    <a href="?status=all" class="filter-btn {% if current_status == 'all' or not current_status %}filter-btn-active{% endif %}">
+                        <span class="filter-icon">📦</span>
+                        Все пакеты
+                    </a>
+                    <a href="?status=sent" class="filter-btn {% if current_status == 'sent' %}filter-btn-active{% endif %}">
+                        <span class="filter-icon">📤</span>
+                        Отправленные
+                    </a>
+                    <a href="?status=accepted" class="filter-btn {% if current_status == 'accepted' %}filter-btn-active{% endif %}">
+                        <span class="filter-icon">✅</span>
+                        Принятые
+                    </a>
+                    <a href="?status=returned" class="filter-btn {% if current_status == 'returned' %}filter-btn-active{% endif %}">
+                        <span class="filter-icon">↩️</span>
+                        Возвращенные
+                    </a>
+                </div>
+            </div>
+        </div>
+
+<!--        <div class="tab-filters">-->
+<!--            <a href="?status=all" class="tab-filter {% if current_status == 'all' or not current_status %}tab-filter-active{% endif %}">-->
+<!--                Все пакеты-->
+<!--            </a>-->
+<!--            <a href="?status=sent" class="tab-filter {% if current_status == 'sent' %}tab-filter-active{% endif %}">-->
+<!--                Отправленные-->
+<!--            </a>-->
+<!--            <a href="?status=accepted" class="tab-filter {% if current_status == 'accepted' %}tab-filter-active{% endif %}">-->
+<!--                Принятые-->
+<!--            </a>-->
+<!--            <a href="?status=returned" class="tab-filter {% if current_status == 'returned' %}tab-filter-active{% endif %}">-->
+<!--                Возвращенные-->
+<!--            </a>-->
+<!--        </div>-->
+
         <div id="packagesListContainer">
             <div class="requests-title" style="margin-bottom: 30px;">Отправленные пакеты заявок</div>
             <div id="packagesContainer">
@@ -23,6 +68,11 @@
                             <div class="package-header">
 <!--                                <div class="package-date">📦 Пакет от {{ p.created_at|date:"d.m.Y" }}</div>-->
                                 <div class="package-date">📦 {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+                                <div class="package-status status-{{ p.status }}">
+                                    {% if p.status == 'returned' %}↩️ Возвращен{% endif %}
+                                    {% if p.status == 'sent' %}📤 Отправлен{% endif %}
+                                    {% if p.status == 'accepted' %}✅ Принят{% endif %}
+                                </div>
                                 <div class="package-count">{{ p.request_count }} заявок</div>
                             </div>
                             <div class="package-info">

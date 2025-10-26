@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RepairRequestForm, RepairRequestEditForm
-from .models import RepairRequest, Package, RequestHistory, RepairRequestPhoto
+from .models import RepairRequest, Package, RequestHistory, RepairRequestPhoto, RepairRequestVideo
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -70,6 +70,7 @@ def create_request_view(request):
         # print("request.FILES:", dict(request.FILES))
 
         photos = request.FILES.getlist('photos')  # список загруженных файлов
+        videos = request.FILES.getlist('videos')
         # print(f"Количество файлов в getlist('photos'): {len(photos)}")
 
         # for i, photo in enumerate(photos):
@@ -87,6 +88,12 @@ def create_request_view(request):
                 RepairRequestPhoto.objects.create(
                     repair_request=repair_request,
                     photo=photo
+                )
+
+            for video in videos:
+                RepairRequestVideo.objects.create(
+                    repair_request=repair_request,
+                    video=video
                 )
 
             # --- Создаём запись в истории сразу после создания ---
@@ -177,21 +184,46 @@ def my_requests_view(request):
         return render(request, "service_track_app/requests.html", {"requests": requests})
 
 
+# def sent_requests_view(request):
+#     if request.method == "POST":
+#         return redirect('sent_requests')
+#     else:
+#         if request.user.role == 'dealer':
+#             # requests = RepairRequest.objects.filter(sent_at__isnull=False)
+#             packages = Package.objects.filter(created_by=request.user)
+#         elif request.user.role == 'service_center':
+#             # requests = RepairRequest.objects.filter(sent_at__isnull=False)
+#             packages = Package.objects.all()
+#         else:
+#             packages = Package.objects.none()
+#
+#         return render(request, "service_track_app/sent.html", {"packages": packages})
+#     # return redirect('sent_requests')
+
+
 def sent_requests_view(request):
     if request.method == "POST":
         return redirect('sent_requests')
     else:
+        status_filter = request.GET.get('status', 'all')
+
         if request.user.role == 'dealer':
-            # requests = RepairRequest.objects.filter(sent_at__isnull=False)
             packages = Package.objects.filter(created_by=request.user)
         elif request.user.role == 'service_center':
-            # requests = RepairRequest.objects.filter(sent_at__isnull=False)
             packages = Package.objects.all()
         else:
             packages = Package.objects.none()
 
-        return render(request, "service_track_app/sent.html", {"packages": packages})
-    # return redirect('sent_requests')
+        # Фильтрация по статусу
+        if status_filter != 'all':
+            packages = packages.filter(status=status_filter)
+
+        packages = packages.order_by('-created_at')
+
+        return render(request, "service_track_app/sent.html", {
+            "packages": packages,
+            "current_status": status_filter
+        })
 
 
 @login_required
@@ -232,7 +264,8 @@ def received_view(request):
 def request_detail_view(request, request_id):
     # Получаем объект заявки по id
     repair_request = get_object_or_404(RepairRequest, id=request_id)
-
+    print("!!!!!!!!!!!!!!!!!!!!!!!!")
+    print(repair_request.__dict__)
     if request.method == 'POST':
         form = RepairRequestEditForm(request.POST, instance=repair_request)
         if form.is_valid():
@@ -260,9 +293,11 @@ def request_detail_view(request, request_id):
 
     # Получаем все фото для этой заявки
     photos = repair_request.photos.all()  # если используется related_name='photos'
-    print(photos)
+    videos = repair_request.videos.all()
+    print('photos: ',photos)
+    print('videos: ', videos)
 
-    return render(request, 'service_track_app/request_detail.html', {'form': form, 'repair_request': repair_request, 'photos': photos})
+    return render(request, 'service_track_app/request_detail.html', {'form': form, 'repair_request': repair_request, 'photos': photos, 'videos': videos})
 
 
 def update_request_status(request, request_id):

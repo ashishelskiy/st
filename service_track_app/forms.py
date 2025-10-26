@@ -1,5 +1,5 @@
 from django import forms
-from .models import RepairRequest, RepairRequestPhoto
+from .models import RepairRequest, RepairRequestPhoto, Product
 from django.core.exceptions import ValidationError
 
 
@@ -16,8 +16,9 @@ class RepairRequestForm(forms.ModelForm):
             "purchase_date": forms.DateInput(attrs={"type": "date", "class": "form-input"}),
             "problem_description": forms.Textarea(attrs={"class": "form-textarea"}),
             "additional_notes": forms.Textarea(attrs={"class": "form-textarea"}),
-            "serial_number": forms.TextInput(attrs={"class": "form-input", "placeholder": "SN123456789"}),
-            "model_name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Apocalypse AP-M81SE"}),
+            "serial_number": forms.TextInput(attrs={"class": "form-input", "placeholder": "A123456789112345"}),
+            # "model_name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Apocalypse AP-M81SE"}),
+            "product": forms.Select(attrs={"class": "form-select select2-product"}),
             "customer_name": forms.TextInput(attrs={"class": "form-input"}),
             "customer_phone": forms.TextInput(attrs={"class": "form-input", "type": "tel", "placeholder": "+7 (999) 123-45-67"}),
             "customer_email": forms.EmailInput(attrs={"class": "form-input"}),
@@ -35,6 +36,33 @@ class RepairRequestForm(forms.ModelForm):
     # customer_phone = forms.CharField(required=False)  # Обязательное для формы
     # dealer_name = forms.CharField(required=False)  # Обязательное для формы
     # dealer_city = forms.CharField(required=False)  # Обязательное для формы
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Активные товары с красивым отображением
+        if 'product' in self.fields:
+            self.fields['product'].queryset = Product.objects.filter(is_active=True)
+            self.fields['product'].label_from_instance = lambda obj: obj.display_name()
+
+        # Выводим все методы родительского класса через super()
+        print("Методы и атрибуты родительского класса:")
+        print(dir(super(RepairRequestForm, self)))
+
+        # Проверяем, есть ли объект заявки (редактирование)
+        if not self.instance.pk:  # Если объекта нет (новая заявка)
+            # self.fields['customer_name'].required = True
+            # self.fields['customer_phone'].required = True
+            # self.fields['dealer_name'].required = True
+            # self.fields['dealer_city'].required = True
+            for field in ['status', 'dealer_company', 'package', 'created_by', 'sent_at']:
+                self.fields.pop(field, None)
+        else:  # Если объект существует (редактирование)
+            self.fields['customer_name'].required = False
+            self.fields['customer_phone'].required = False
+            # self.fields['dealer_name'].required = False
+            # self.fields['dealer_city'].required = False
+
     def save(self, commit=True):
         instance = super().save(commit=commit)
 
@@ -46,26 +74,6 @@ class RepairRequestForm(forms.ModelForm):
                     photo=photo
                 )
         return instance
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Выводим все методы родительского класса через super()
-        print("Методы и атрибуты родительского класса:")
-        print(dir(super(RepairRequestForm, self)))
-
-        # Проверяем, есть ли объект заявки (редактирование)
-        if not self.instance.pk:  # Если объекта нет (новая заявка)
-            self.fields['customer_name'].required = True
-            self.fields['customer_phone'].required = True
-            # self.fields['dealer_name'].required = True
-            # self.fields['dealer_city'].required = True
-            for field in ['status', 'dealer_company', 'package', 'created_by', 'sent_at']:
-                self.fields.pop(field, None)
-        else:  # Если объект существует (редактирование)
-            self.fields['customer_name'].required = False
-            self.fields['customer_phone'].required = False
-            # self.fields['dealer_name'].required = False
-            # self.fields['dealer_city'].required = False
 
 
 class RepairRequestEditForm(forms.ModelForm):
@@ -74,7 +82,8 @@ class RepairRequestEditForm(forms.ModelForm):
         # Список полей, которые можно редактировать
         fields = [
             "serial_number",
-            "model_name",
+            # "model_name",
+            "product",
             "purchase_date",
             "warranty_status",
             "status",
@@ -83,7 +92,8 @@ class RepairRequestEditForm(forms.ModelForm):
         ]
         widgets = {
             "serial_number": forms.TextInput(attrs={"class": "form-input"}),
-            "model_name": forms.TextInput(attrs={"class": "form-input"}),
+            # "model_name": forms.TextInput(attrs={"class": "form-input"}),
+            "product": forms.Select(attrs={"class": "form-select select2-product"}),
             "purchase_date": forms.DateInput(attrs={"type": "date", "class": "form-input"}),
             "warranty_status": forms.Select(attrs={"class": "form-select"}),
             "problem_description": forms.Textarea(attrs={"class": "form-textarea"}),

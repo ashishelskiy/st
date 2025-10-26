@@ -28,11 +28,11 @@
                             <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="request-checkbox">
                         </th>
                         <th>№ заявки</th>
-                        <th>Серийный номер</th>
-                        <th>Модель</th>
-                        <th>Покупатель</th>
-                        <th>Проблема</th>
-                        <th>Гарантия</th>
+                        <th>Серийный номер товара</th>
+                        <th>Товар</th>
+                        <th>ФИО покупателя</th>
+                        <th>Описание неисправности</th>
+                        <th>Статус гарантии</th>
 <!--                        <th>Статус</th>-->
                         <th>Дата создания</th>
                     </tr>
@@ -45,7 +45,7 @@
                             </td>
                             <td class="request-id">#{{ r.id }}</td>
                             <td>{{ r.serial_number }}</td>
-                            <td>{{ r.model_name }}</td>
+                            <td>{{ r.product }}</td>
                             <td>{{ r.customer_name }}</td>
                             <td title="{{ r.problem_description }}">
                                 {{ r.problem_description|truncatechars:50 }}
