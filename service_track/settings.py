@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'service_track_app',
-    'django_select2',
 ]
 
 MIDDLEWARE = [
