@@ -134,3 +134,9 @@ AUTH_USER_MODEL = 'service_track_app.CustomUser'
 
 LOGIN_URL = '/login/'             # куда редиректить при @login_required
 LOGIN_REDIRECT_URL = '/home/'     # куда редиректить после логина
+
+# Production settings for PythonAnywhere
+import os
+if os.environ.get('PYTHONANYWHERE_DOMAIN'):
+    ALLOWED_HOSTS = ['ashishelskiy.pythonanywhere.com']
+    DEBUG = False
