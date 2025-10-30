@@ -227,20 +227,6 @@ def sent_requests_view(request):
 
 
 @login_required
-def package_detail_view(request, package_id):
-    # Получаем пакет или 404
-    pkg = get_object_or_404(Package, id=package_id)
-
-    # Берём все заявки внутри пакета
-    requests = pkg.requests.all().order_by('-sent_at')
-
-    return render(request, "service_track_app/package_detail.html", {
-        'p': pkg,
-        'requests': requests,
-    })
-
-
-@login_required
 @role_required(['service_center'])
 def received_view(request):
     packages = Package.objects.all()
@@ -259,6 +245,35 @@ def received_view(request):
     #     repair_requests = RepairRequest.objects.filter(status__in=['received', 'inprogress', 'completed'])
 
     return render(request, 'service_track_app/received.html', {'packages': packages, 'repair_requests': repair_requests})
+
+
+@login_required
+def package_detail_view(request, package_id):
+    # Получаем пакет или 404
+    pkg = get_object_or_404(Package, id=package_id)
+
+    user_role = request.user.role
+
+    # Определяем, кто пользователь и куда вести "Назад"
+    if user_role == 'dealer':
+        back_url = reverse('sent_requests')
+        back_title = "Отправленные пакеты"
+    elif user_role == 'service_center':
+        back_url = reverse('received')
+        back_title = "Поступившие пакеты"
+
+    print(back_url)
+    print(back_title)
+
+    # Берём все заявки внутри пакета
+    requests = pkg.requests.all().order_by('-sent_at')
+
+    return render(request, "service_track_app/package_detail.html", {
+        'p': pkg,
+        'requests': requests,
+        'back_url': back_url,
+        'back_title': back_title,
+    })
 
 
 def request_detail_view(request, request_id):

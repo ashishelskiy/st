@@ -15,7 +15,7 @@ urlpatterns = [
     path('received/', views.received_view, name='received'),
     path('request_detail/<int:request_id>/', views.request_detail_view, name='request_detail'),
     path("my-requests/send/", views.sent_requests_view, name="send_selected_requests"),
-    path('packages/<int:package_id>/', views.package_detail_view, name='package_detail'),
+    path('package/<int:package_id>/', views.package_detail_view, name='package_detail'),
     path('update_request_status/<int:request_id>/', views.update_request_status, name='update_request_status'),
 ]
 

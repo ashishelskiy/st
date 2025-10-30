@@ -4,13 +4,23 @@
 {% block content %}
 <div id="sentSection" class="section active">
 <div class="sent-requests-section">
+<!--    <div class="breadcrumb">-->
+<!--        <span class="breadcrumb-item" onclick="window.location.href='{% url 'sent_requests' %}'">📦 Отправленные пакеты</span>-->
+<!--        <span class="breadcrumb-separator" id="breadcrumbSeparator" style="display: inline;">›</span>-->
+<!--        <span class="breadcrumb-current" id="breadcrumbCurrent" style="display: inline;">Пакет от {{ p.created_at|date:"d.m.Y" }}</span>-->
+<!--    </div>-->
     <div class="breadcrumb">
-        <span class="breadcrumb-item" onclick="window.location.href='{% url 'sent_requests' %}'">📦 Отправленные пакеты</span>
-        <span class="breadcrumb-separator" id="breadcrumbSeparator" style="display: inline;">›</span>
-        <span class="breadcrumb-current" id="breadcrumbCurrent" style="display: inline;">Пакет от {{ p.created_at|date:"d.m.Y" }}</span>
-    </div>
+    <span class="breadcrumb-item" onclick="window.location.href='{{ back_url }}'">
+        📦 {{ back_title }}
+    </span>
+    <span class="breadcrumb-separator">›</span>
+    <span class="breadcrumb-current">Пакет от {{ p.created_at|date:"d.m.Y" }}</span>
+</div>
     <div id="packageDetailsContainer" class="package-details active">
-        <button class="back-btn" onclick="window.location.href='{% url 'sent_requests' %}'">← Назад к списку пакетов</button>
+<!--        <button class="back-btn" onclick="window.location.href='{% url 'sent_requests' %}'">← Назад к списку пакетов</button>-->
+        <button class="back-btn" onclick="window.location.href='{{ back_url }}'">
+            ← Назад к {{ back_title|lower }}
+        </button>
 <!--        <div class="requests-title" id="packageDetailsTitle">Заявки в пакете от {{ p.created_at|date:"d.m.Y" }} ({{ p.request_count }} шт.)</div>-->
         <div class="requests-title" id="packageDetailsTitle">{{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
         <div id="packageRequestsContainer">
