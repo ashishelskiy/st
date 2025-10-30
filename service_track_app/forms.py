@@ -6,12 +6,18 @@ from django.core.exceptions import ValidationError
 class RepairRequestForm(forms.ModelForm):
     class Meta:
         model = RepairRequest
-        # fields = [
-        #     "serial_number", "model_name", "purchase_date", "warranty_status",
-        #     "problem_description", "customer_name", "customer_phone",
-        #     "customer_email", "dealer_name", "dealer_city", "additional_notes"
-        # ]
-        fields = '__all__'
+        fields = [
+            "serial_number",
+            "product",
+            "purchase_date",
+            "warranty_status",
+            "problem_description",
+            "customer_name",
+            "customer_phone",
+            "customer_email",
+            "additional_notes"
+        ]
+        # fields = '__all__'
         widgets = {
             "purchase_date": forms.DateInput(attrs={"type": "date", "class": "form-input"}),
             "problem_description": forms.Textarea(attrs={"class": "form-textarea"}),
@@ -19,11 +25,24 @@ class RepairRequestForm(forms.ModelForm):
             "serial_number": forms.TextInput(attrs={"class": "form-input", "placeholder": "A123456789112345"}),
             # "model_name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Apocalypse AP-M81SE"}),
             "product": forms.Select(attrs={"class": "form-select select2-product"}),
-            "customer_name": forms.TextInput(attrs={"class": "form-input"}),
-            "customer_phone": forms.TextInput(attrs={"class": "form-input", "type": "tel", "placeholder": "+7 (999) 123-45-67"}),
-            "customer_email": forms.EmailInput(attrs={"class": "form-input"}),
-            "dealer_name": forms.TextInput(attrs={"class": "form-input"}),
-            "dealer_city": forms.TextInput(attrs={"class": "form-input"}),
+            # "customer_name": forms.TextInput(attrs={"class": "form-input"}),
+            # "customer_phone": forms.TextInput(attrs={"class": "form-input", "type": "tel", "placeholder": "+7 (999) 123-45-67"}),
+            # "customer_email": forms.EmailInput(attrs={"class": "form-input"}),
+            "customer_name": forms.TextInput(attrs={
+                "class": "form-input customer-field hidden-field",
+                "placeholder": "ФИО покупателя"
+            }),
+            "customer_phone": forms.TextInput(attrs={
+                "class": "form-input customer-field hidden-field",
+                "type": "tel",
+                "placeholder": "+7 (999) 123-45-67"
+            }),
+            "customer_email": forms.EmailInput(attrs={
+                "class": "form-input customer-field hidden-field",
+                "placeholder": "email@example.com"
+            }),
+            # "dealer_name": forms.TextInput(attrs={"class": "form-input"}),
+            # "dealer_city": forms.TextInput(attrs={"class": "form-input"}),
             "warranty_status": forms.Select(attrs={"class": "form-select"}),
         }
     # additional_notes = forms.CharField(

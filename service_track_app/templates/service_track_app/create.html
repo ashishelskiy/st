@@ -6,6 +6,40 @@
     <div class="form-title">Создание новой заявки на ремонт</div>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <!-- Выводим поля до warranty_status -->
+        {% for field in form %}
+            {% if field.name in "serial_number product purchase_date warranty_status problem_description" %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }} {% if field.field.required %}*{% endif %}</label>
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <!-- Блок данных клиента -->
+        <div class="customer-section">
+            <button type="button" class="customer-toggle-btn btn btn-outline-primary">
+                <span class="btn-text">📋 Добавить данные покупателя</span>
+                <span class="arrow">▼</span>
+            </button>
+
+            <div class="customer-fields collapse">
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.customer_name.id_for_label }}">ФИО покупателя</label>
+                        {{ form.customer_name }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.customer_phone.id_for_label }}">Телефон покупателя</label>
+                        {{ form.customer_phone }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.customer_email.id_for_label }}">Email покупателя</label>
+                        {{ form.customer_email }}
+                    </div>
+
+            </div>
+        </div>
+        <!-- КОНЕЦ БЛОКА ДАННЫХ КЛИЕНТА -->
 <!--        {{ form.media }}-->
 <!--        <style>-->
 <!--        .select2-container&#45;&#45;default .select2-selection&#45;&#45;single {-->
@@ -17,10 +51,12 @@
 <!--        .btn { cursor: pointer; margin: 2px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; }-->
 <!--        </style>-->
         {% for field in form %}
-            <div class="form-group">
-                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }} {% if field.field.required %}*{% endif %}</label>
-                {{ field }}
-            </div>
+            {% if field.name not in "serial_number product purchase_date warranty_status problem_description customer_name customer_phone customer_email" %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }} {% if field.field.required %}*{% endif %}</label>
+                    {{ field }}
+                </div>
+            {% endif %}
         {% endfor %}
 
         <!-- Блок для фото -->
@@ -38,7 +74,6 @@
 
         <!-- Блок для видео -->
         <div class="form-group">
-            <label class="form-label">Видео товара</label>
             <div class="file-upload-container" id="videoUploadContainer" onclick="document.getElementById('videoUpload').click()">
                 <div class="file-upload-icon">🎥</div>
                 <div class="file-upload-text">Нажмите для выбора видео или перетащите файлы сюда</div>
@@ -66,6 +101,25 @@ $(document).ready(function() {
 });
 </script>
 <script>
+    // Обработчик для кнопки данных клиента
+    document.querySelector('.customer-toggle-btn').addEventListener('click', function() {
+        const fields = document.querySelector('.customer-fields');
+        const arrow = this.querySelector('.arrow');
+        const btnText = this.querySelector('.btn-text');
+
+        fields.classList.toggle('show');
+        arrow.classList.toggle('rotated');
+
+        if (fields.classList.contains('show')) {
+            btnText.textContent = '📋 Скрыть данные покупателя';
+            // Показываем поля с анимацией
+            document.querySelectorAll('.customer-field').forEach(field => {
+                field.style.display = 'block';
+            });
+        } else {
+            btnText.textContent = '📋 Добавить данные покупателя';
+        }
+    });
     let uploadedFiles = [];
     let uploadedVideos = [];
 
@@ -384,6 +438,48 @@ $(document).ready(function() {
     .clear-btn:hover {
         background: #c82333;
         transform: translateY(-1px);
+    }
+</style>
+<style>
+    /* Стили для блока данных клиента */
+    .customer-fields.collapse {
+        display: none;
+    }
+    .customer-fields.show {
+        display: block;
+    }
+    .customer-toggle-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 12px 16px;
+        margin-bottom: 15px;
+        border: 2px dashed #007bff;
+        background: #f8f9fa;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .customer-toggle-btn:hover {
+        background: #e9ecef;
+        border-color: #0056b3;
+    }
+    .arrow {
+        transition: transform 0.3s ease;
+        font-size: 0.9rem;
+    }
+    .arrow.rotated {
+        transform: rotate(180deg);
+    }
+    .customer-fields .card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+
+    /* Скрываем поля клиента в основном цикле */
+    .customer-field {
+        display: none;
     }
 </style>
 {% endblock %}
