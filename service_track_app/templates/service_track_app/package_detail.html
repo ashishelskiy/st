@@ -22,32 +22,32 @@
             ← Назад к {{ back_title|lower }}
         </button>
 <!--        <div class="requests-title" id="packageDetailsTitle">Заявки в пакете от {{ p.created_at|date:"d.m.Y" }} ({{ p.request_count }} шт.)</div>-->
-        <div class="requests-title" id="packageDetailsTitle">{{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+        <div class="requests-title" id="packageDetailsTitle">📦 {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
         <div id="packageRequestsContainer">
             <div class="package-requests-table-container">
                 <table class="package-requests-table">
                     <thead>
                         <tr>
-                            <th>№ заявки</th>
-                            <th>Серийный номер</th>
+                            <th>№</th>
+                            <th>Серийный номер товара</th>
                             <th>Модель</th>
-                            <th>Покупатель</th>
-                            <th>Проблема</th>
-                            <th>Гарантия</th>
-                            <th>Время отправки</th>
+<!--                            <th>Покупатель</th>-->
+<!--                            <th>Проблема</th>-->
+                            <th>Статус гарантии</th>
+<!--                            <th>Время отправки</th>-->
                         </tr>
                     </thead>
                     <tbody>
                         {% for r in requests %}
                         <tr class="package-request-row" onclick="openRequestDetails(4, false)">
-                            <td data-label="№ заявки" class="request-id">#{{ r.id }}</td>
-                            <td data-label="Серийный номер">{{ r.serial_number }}</td>
-                            <td data-label="Модель">{{ r.model_name }}</td>
-                            <td data-label="Покупатель">{{ r.customer_name }}</td>
-                            <td data-label="Проблема" title="{{ r.problem_description|truncatechars:50 }}">
-                                {{ r.problem_description|truncatechars:50 }}
-                            </td>
-                            <td data-label="Гарантия">
+                            <td data-label="№" class="request-id">{{ r.id }}</td>
+                            <td data-label="Серийный номер товара">{{ r.serial_number }}</td>
+                            <td data-label="Модель">{{ r.product }}</td>
+<!--                            <td data-label="Покупатель">{{ r.customer_name }}</td>-->
+<!--                            <td data-label="Проблема" title="{{ r.problem_description|truncatechars:50 }}">-->
+<!--                                {{ r.problem_description|truncatechars:50 }}-->
+<!--                            </td>-->
+                            <td data-label="Статус гарантии">
                                 {% if r.status == "warranty" %}
                                     <span class="request-status status-sent">На гарантии</span>
                                 {% elif r.status == "expired" %}
@@ -56,7 +56,7 @@
                                     <span class="request-status status-created">Неизвестно</span>
                                 {% endif %}
                             </td>
-                            <td data-label="Время отправки" class="request-date">{{ r.sent_at|date:"H:i" }}</td>
+<!--                            <td data-label="Время отправки" class="request-date">{{ r.sent_at|date:"H:i" }}</td>-->
                         </tr>
                         {% endfor %}
                     </tbody>
