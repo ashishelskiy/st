@@ -1,0 +1,25 @@
+<div class="advanced-filters">
+    <div class="filters-container" id="filtersContainer">
+        <div class="filter-row">
+            <select class="filter-field" name="filterField">
+                <option value="status">Статус</option>
+                <option value="dealer">Дилер</option>
+                <option value="model">Модель</option>
+                <option value="serial">Серийный номер</option>
+                <option value="date">Дата создания</option>
+            </select>
+            <select class="filter-operator" name="filterOperator">
+                <option value="equals">равно</option>
+                <option value="contains">содержит</option>
+                <option value="startswith">начинается с</option>
+            </select>
+            <input type="text" class="filter-value" placeholder="Значение">
+            <button type="button" class="add-filter-btn" title="Добавить фильтр">➕</button>
+            <button type="button" class="remove-filter-btn" title="Удалить фильтр">🗑️</button>
+        </div>
+    </div>
+    <div class="filter-actions">
+        <button type="button" class="clear-filters-btn">Сбросить</button>
+        <button type="button" class="apply-filters-btn">Применить</button>
+    </div>
+</div>

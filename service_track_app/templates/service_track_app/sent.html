@@ -3,8 +3,6 @@
 
 {% block content %}
 <div class="sent-requests-section">
-<!--    <div class="requests-title">Отправленные пакеты заявок</div>-->
-    <!-- тут список отправленных пакетов -->
     <div class="sent-requests-section">
         <div class="breadcrumb">
             <span class="breadcrumb-item" onclick="window.location.href='{% url 'sent_requests' %}'">📦 Отправленные пакеты</span>
@@ -12,15 +10,9 @@
             <span class="breadcrumb-current" id="breadcrumbCurrent" style="display: none;"></span>
         </div>
 
-<!--        <div class="filters" style="margin: 20px 0;">-->
-<!--            <a href="?status=all" class="filter-btn {% if current_status == 'all' %}active{% endif %}">Все</a>-->
-<!--            <a href="?status=sent" class="filter-btn {% if current_status == 'sent' %}active{% endif %}">Отправленные</a>-->
-<!--            <a href="?status=returned" class="filter-btn {% if current_status == 'returned' %}active{% endif %}">Возвращенные</a>-->
-<!--            <a href="?status=accepted" class="filter-btn {% if current_status == 'accepted' %}active{% endif %}">Принятые</a>-->
-<!--        </div>-->
         <div class="filters-section">
             <div class="filters-header">
-                <span class="filters-title">Фильтры:</span>
+<!--                <span class="filters-title">Фильтры:</span>-->
                 <div class="filters-container">
                     <a href="?status=all" class="filter-btn {% if current_status == 'all' or not current_status %}filter-btn-active{% endif %}">
                         <span class="filter-icon">📦</span>
@@ -42,65 +34,61 @@
             </div>
         </div>
 
-<!--        <div class="tab-filters">-->
-<!--            <a href="?status=all" class="tab-filter {% if current_status == 'all' or not current_status %}tab-filter-active{% endif %}">-->
-<!--                Все пакеты-->
-<!--            </a>-->
-<!--            <a href="?status=sent" class="tab-filter {% if current_status == 'sent' %}tab-filter-active{% endif %}">-->
-<!--                Отправленные-->
-<!--            </a>-->
-<!--            <a href="?status=accepted" class="tab-filter {% if current_status == 'accepted' %}tab-filter-active{% endif %}">-->
-<!--                Принятые-->
-<!--            </a>-->
-<!--            <a href="?status=returned" class="tab-filter {% if current_status == 'returned' %}tab-filter-active{% endif %}">-->
-<!--                Возвращенные-->
-<!--            </a>-->
-<!--        </div>-->
-
         <div id="packagesListContainer">
             <div class="requests-title" style="margin-bottom: 30px;">Отправленные пакеты заявок</div>
             <div id="packagesContainer">
                 {% if packages %}
                 {% for p in packages %}
-<!--                    <div class="package-card" onclick="showPackageDetails('02.10.2025')">-->
-                    <div class="package-card" onclick="window.location.href='{% url 'package_detail' p.id %}'">
-<!--                        <a href="{% url 'package_detail' p.id %}">-->
-                            <div class="package-header">
-<!--                                <div class="package-date">📦 Пакет от {{ p.created_at|date:"d.m.Y" }}</div>-->
-                                <div class="package-date">📦 {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
-                                <div class="package-status status-{{ p.status }}">
-                                    {% if p.status == 'returned' %}↩️ Возвращен{% endif %}
-                                    {% if p.status == 'sent' %}📤 Отправлен{% endif %}
-                                    {% if p.status == 'accepted' %}✅ Принят{% endif %}
-                                </div>
-                                <div class="package-count">{{ p.request_count }} заявок</div>
-                            </div>
-                            <div class="package-info">
-                                <div class="package-info-item">
-                                    <span>🕒</span>
-                                    <span>Отправлено в {{ p.created_at|date:"H:i" }}</span>
-                                </div>
-<!--                                <div class="package-info-item">-->
-<!--                                    <span>🏢</span>-->
-<!--                                    <span>{{ p.dealer_company }}</span>-->
-<!--                                </div>-->
-    <!--                            <div class="package-info-item">-->
-    <!--                                <span>✅</span>-->
-    <!--                                <span>На гарантии: 1</span>-->
-    <!--                            </div>-->
-    <!--                            <div class="package-info-item">-->
-    <!--                                <span>⚠️</span>-->
-    <!--                                <span>Гарантия истекла: 0</span>-->
-    <!--                            </div>-->
-                            </div>
-<!--                        </a>-->
+                <div class="package-card">
+                    <div class="package-header" onclick="window.location.href='{% url 'package_detail' p.id %}'" style="cursor: pointer;">
+                        <div class="package-date">📦 {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+                        <div class="package-status status-{{ p.status }}">
+                            {% if p.status == 'returned' %}↩️ Возвращен{% endif %}
+                            {% if p.status == 'sent' %}📤 Отправлен{% endif %}
+                            {% if p.status == 'accepted' %}✅ Принят{% endif %}
+                        </div>
+                        <div class="package-count">{{ p.requests.count }} заявок</div>
                     </div>
+
+                    <!-- Таблица заявок внутри карточки пакета -->
+                    <div class="package-requests-mini-table">
+                        <table class="mini-requests-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Серийный номер товара</th>
+                                    <th>Товар</th>
+                                    <th>Статус гарантии</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in p.requests.all %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ r.serial_number }}</td>
+                                    <td>{{ r.product.display_name }}</td>
+                                    <td>
+                                        {% if r.warranty_status == "warranty" %}
+                                            <span class="request-status status-sent">На гарантии</span>
+                                        {% elif r.warranty_status == "paid_repair" %}
+                                            <span class="request-status status-created">Платный ремонт</span>
+                                        {% elif r.warranty_status == "diagnostics" %}
+                                            <span class="request-status status-created">Диагностика</span>
+                                        {% else %}
+                                            <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 {% endfor %}
                 {% else %}
                     <div class="empty-state">
                         <div class="empty-state-icon">📋</div>
-                        <div class="empty-state-text">У вас пока нет пакетовк</div>
-<!--                        <div class="empty-state-subtext">Создайте первую заявку во вкладке "Создать заявку"</div>-->
+                        <div class="empty-state-text">У вас пока нет пакетов</div>
                     </div>
                 {% endif %}
             </div>

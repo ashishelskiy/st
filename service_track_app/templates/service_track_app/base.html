@@ -30,7 +30,7 @@
                         📦 Отправленные
                     </a>
                 {% elif user.role == 'service_center' %}
-                    <a href="{% url 'received' %}" class="nav-item {% if request.resolver_match.url_name == 'received' %}active{% endif %}">
+                    <a href="{% url 'received_requests' %}" class="nav-item {% if request.resolver_match.url_name == 'received' %}active{% endif %}">
                         🏥 Поступившие в СЦ
                     </a>
                 {% endif %}
@@ -62,7 +62,9 @@
         </div>
     </div>
 
-    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'service_track_app/js/app.js' %}"></script>
+<!--    <script src="{% static 'service_track_app/js/filters.js' %}"></script>-->
+    <script src="{% static 'service_track_app/js/ex_filters.js' %}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const avatar = document.getElementById('userAvatar');

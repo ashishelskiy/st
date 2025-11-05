@@ -1,0 +1,194 @@
+{% extends "service_track_app/base.html" %}
+{% block title %}Пакет {{ p.id }}{% endblock %}
+
+{% block content %}
+<div id="receivedSection" class="section active">
+<div class="received-requests-section">
+    <div class="breadcrumb">
+        <span class="breadcrumb-item" onclick="window.location.href='{% url 'received_requests' %}'">📦 Поступившие в СЦ</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-current">Пакет от {{ p.created_at|date:"d.m.Y" }}</span>
+    </div>
+    <div id="packageDetailsContainer" class="package-details active">
+        <button class="back-btn" onclick="window.location.href='{% url 'received_requests' %}'">← К поступившим в СЦ</button>
+        <div class="requests-title" id="packageDetailsTitle">Отправка {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+
+        <div id="packageRequestsContainer">
+            <div class="package-requests-mini-table">
+                <table class="mini-requests-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-header">Поступили</th>
+                            <th>Серийный номер товара</th>
+                            <th>Товар</th>
+                            <th>Покупатель</th>
+                            <th>Проблема</th>
+                            <th>Фото/Видео</th>
+                            <th>На ремонт</th>
+                            <th>Заявка создана</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in requests %}
+                        <tr class="package-request-row {% if r.received_by_sc %}received-row{% endif %}"
+                            data-request-id="{{ r.id }}"
+                            onclick="openRequestDetail({{ r.id }})" style="cursor: pointer;">
+                            <td class="checkbox-cell">
+                                <input type="checkbox" class="received-checkbox"
+                                       id="request-{{ r.id }}"
+                                       data-request-id="{{ r.id }}"
+                                       {% if r.received_by_sc %}checked disabled{% endif %}>
+                            </td>
+                            <td>{{ r.serial_number }}</td>
+                            <td>{{ r.product }}</td>
+                            <td>{{ r.customer_name }}</td>
+                            <td title="{{ r.problem_description }}">
+                                {{ r.problem_description|truncatechars:30 }}
+                            </td>
+                            <td class="attachments-mini">
+                                {% if r.photos.exists or r.videos.exists %}
+                                    {% if r.photos.exists %}<span title="{{ r.photos.count }} фото">🖼</span>{% endif %}
+                                    {% if r.videos.exists %}<span title="{{ r.videos.count }} видео">🎬</span>{% endif %}
+                                {% else %}
+                                    <span class="no-attachments">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if r.warranty_status == "warranty" %}
+                                    <span class="request-status status-sent">На гарантии</span>
+                                {% elif r.warranty_status == "paid_repair" %}
+                                    <span class="request-status status-created">Платный ремонт</span>
+                                {% elif r.warranty_status == "diagnostics" %}
+                                    <span class="request-status status-created">Диагностика</span>
+                                {% else %}
+                                    <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ r.created_at|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="">Принять</button>
+</div>
+</div>
+
+<style>
+.requests-title {
+    /*font-size: 1.2rem;*/
+    font-size: 1.0rem;
+    font-weight: 600;
+    color: #333;
+    /*flex: 1;*/
+}
+.package-requests-mini-table {
+    margin: 10px 0;
+    max-height: none; /* Убираем ограничение высоты для детальной страницы */
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mini-requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8em; /* Чуть больше для читаемости */
+}
+
+.mini-requests-table th {
+    background-color: #f5f5f5;
+    padding: 6px 8px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+}
+
+.mini-requests-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mini-requests-table tr:last-child td {
+    border-bottom: none;
+}
+
+.request-status {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
+.status-sent {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-created {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+/* Стили для чекбоксов и состояния */
+.checkbox-header {
+    text-align: center;
+    width: 60px;
+}
+
+.checkbox-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.received-checkbox {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.received-row {
+    background-color: #f8fff9 !important;
+}
+
+.attachments-mini {
+    text-align: center;
+}
+
+.attachments-mini span {
+    cursor: help;
+    opacity: 0.8;
+}
+
+.no-attachments {
+    color: #999;
+    font-style: italic;
+}
+
+.package-request-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.package-request-row:hover {
+    background-color: #f8f9fa;
+}
+</style>
+<script>
+    function openRequestDetail(requestId) {
+        window.location.href = `{% url 'request_detail' 0 %}`.replace('0', requestId);
+    }
+
+    // Чтобы клик по чекбоксу не переходил на страницу заявки
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.received-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function(e) {
+                e.stopPropagation(); // Останавливаем всплытие события
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,8 +1,244 @@
-<div class="file-preview-item">
-                        <img src="data:image/webp;base64," alt="avito-image.webp" class="file-preview-image">
-                        <div class="file-preview-info">
-                            <div class="file-preview-name">avito-image.webp</div>
-                            <div class="file-preview-size">108.1 КБ</div>
-                        </div>
-                        <button type="button" class="file-remove-btn" onclick="removeUploadedFile(1)">×</button>
-                    </div>
+<!-- sc_package_detail.html -->
+{% extends "service_track_app/base.html" %}
+{% block title %}Пакет {{ p.id }}{% endblock %}
+
+{% block content %}
+<div id="receivedSection" class="section active">
+<div class="received-requests-section">
+    <div class="breadcrumb">
+        <span class="breadcrumb-item" onclick="window.location.href='{% url 'sc_received_packages' %}'">📦 Полученные пакеты</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-current">Пакет от {{ p.created_at|date:"d.m.Y" }}</span>
+    </div>
+    <div id="packageDetailsContainer" class="package-details active">
+        <button class="back-btn" onclick="window.location.href='{% url 'sc_received_packages' %}'">← Назад к списку пакетов</button>
+        <div class="requests-title" id="packageDetailsTitle">{{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+
+        <!-- Блок массовых действий -->
+        <div class="bulk-actions">
+            <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox" title="Выделить все">
+            <button id="markAsReceivedBtn" class="btn-primary" disabled>Отметить выбранные как принятые</button>
+            <span id="selectedCount">Выбрано: 0</span>
+        </div>
+
+        <div id="packageRequestsContainer">
+            <div class="package-requests-table-container">
+                <table class="package-requests-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-header">Принято</th>
+                            <th>№ заявки</th>
+                            <th>Серийный номер</th>
+                            <th>Модель</th>
+                            <th>Покупатель</th>
+                            <th>Проблема</th>
+                            <th>Гарантия</th>
+                            <th>Время получения</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in requests %}
+                        <tr class="package-request-row {% if r.received_by_sc %}received-row{% endif %}"
+                            data-request-id="{{ r.id }}">
+                            <td data-label="Принято" class="checkbox-cell">
+                                <input type="checkbox" class="received-checkbox"
+                                       id="request-{{ r.id }}"
+                                       data-request-id="{{ r.id }}"
+                                       {% if r.received_by_sc %}checked disabled{% endif %}>
+                            </td>
+                            <td data-label="№ заявки" class="request-id">#{{ r.id }}</td>
+                            <td data-label="Серийный номер">{{ r.serial_number }}</td>
+                            <td data-label="Модель">{{ r.model_name }}</td>
+                            <td data-label="Покупатель">{{ r.customer_name }}</td>
+                            <td data-label="Проблемa" title="{{ r.problem_description }}">
+                                {{ r.problem_description|truncatechars:50 }}
+                            </td>
+                            <td data-label="Гарантия">
+                                {% if r.status == "warranty" %}
+                                    <span class="request-status status-sent">На гарантии</span>
+                                {% elif r.status == "expired" %}
+                                    <span class="request-status status-created">Гарантия истекла</span>
+                                {% else %}
+                                    <span class="request-status status-created">Неизвестно</span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Время получения" class="request-date">{{ r.received_at|date:"H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+// JavaScript код остаётся тот же
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const markAsReceivedBtn = document.getElementById('markAsReceivedBtn');
+    const selectedCount = document.getElementById('selectedCount');
+    const individualCheckboxes = document.querySelectorAll('.received-checkbox:not(:disabled)');
+
+    function updateSelection() {
+        const selectedCheckboxes = document.querySelectorAll('.received-checkbox:checked:not(:disabled)');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-request-id'));
+
+        selectedCount.textContent = `Выбрано: ${selectedIds.length}`;
+        markAsReceivedBtn.disabled = selectedIds.length === 0;
+
+        const totalCheckboxes = document.querySelectorAll('.received-checkbox:not(:disabled)').length;
+        const checkedCount = selectedCheckboxes.length;
+
+        if (checkedCount === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (checkedCount === totalCheckboxes) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = true;
+        }
+    }
+
+    selectAllCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        individualCheckboxes.forEach(checkbox => {
+            if (checkbox.checked !== isChecked) {
+                checkbox.checked = isChecked;
+            }
+        });
+        updateSelection();
+    });
+
+    individualCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelection);
+    });
+
+    markAsReceivedBtn.addEventListener('click', function() {
+        const selectedCheckboxes = document.querySelectorAll('.received-checkbox:checked:not(:disabled)');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-request-id'));
+
+        if (selectedIds.length === 0) return;
+
+        if (!confirm(`Отметить ${selectedIds.length} заявок как принятые?`)) {
+            return;
+        }
+
+        fetch('{% url "mark_requests_as_received" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                request_ids: selectedIds
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                selectedCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = true;
+                    checkbox.closest('tr').classList.add('received-row');
+                });
+
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+                updateSelection();
+
+                alert(`Успешно отмечено ${selectedIds.length} заявок`);
+            } else {
+                alert('Ошибка при обновлении статуса заявок');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Ошибка при обновлении статуса заявок');
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    updateSelection();
+});
+</script>
+
+<style>
+/* Стили остаются те же */
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.select-all-checkbox {
+    transform: scale(1.3);
+    cursor: pointer;
+}
+
+#markAsReceivedBtn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+#selectedCount {
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.checkbox-header {
+    text-align: center;
+    width: 80px;
+}
+
+.checkbox-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.received-checkbox {
+    transform: scale(1.3);
+    cursor: pointer;
+}
+
+.received-row {
+    background-color: #f8fff9 !important;
+    border-left: 4px solid #28a745;
+}
+
+.received-row td {
+    opacity: 0.8;
+}
+
+.package-request-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.package-request-row:hover {
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

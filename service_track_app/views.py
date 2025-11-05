@@ -201,6 +201,31 @@ def my_requests_view(request):
 #     # return redirect('sent_requests')
 
 
+# def sent_requests_view(request):
+#     if request.method == "POST":
+#         return redirect('sent_requests')
+#     else:
+#         status_filter = request.GET.get('status', 'all')
+#
+#         if request.user.role == 'dealer':
+#             packages = Package.objects.filter(created_by=request.user)
+#         elif request.user.role == 'service_center':
+#             packages = Package.objects.all()
+#         else:
+#             packages = Package.objects.none()
+#
+#         # Фильтрация по статусу
+#         if status_filter != 'all':
+#             packages = packages.filter(status=status_filter)
+#
+#         packages = packages.order_by('-created_at')
+#
+#         return render(request, "service_track_app/sent.html", {
+#             "packages": packages,
+#             "current_status": status_filter
+#         })
+
+
 def sent_requests_view(request):
     if request.method == "POST":
         return redirect('sent_requests')
@@ -218,7 +243,8 @@ def sent_requests_view(request):
         if status_filter != 'all':
             packages = packages.filter(status=status_filter)
 
-        packages = packages.order_by('-created_at')
+        # Предзагрузка связанных заявок с товарами
+        packages = packages.prefetch_related('requests__product').order_by('-created_at')
 
         return render(request, "service_track_app/sent.html", {
             "packages": packages,
@@ -226,25 +252,83 @@ def sent_requests_view(request):
         })
 
 
+# @login_required
+# @role_required(['service_center'])
+# def received_requests_view(request):
+#     packages = Package.objects.all()
+#     # packages = Package.objects.prefetch_related('repairrequest_set').all()
+#     repair_requests = RepairRequest.objects.filter(
+#         sent_at__isnull=False,  # есть дата отправки
+#         package__isnull=False,  # есть привязка к пакету
+#         status='sent_to_service'  # статус "Отправлено в сервисный центр"
+#     )
+#
+#     # Фильтрация по статусу поступления
+#     # status = request.GET.get('status', 'all')  # Получаем статус из параметра GET
+#     # if status != 'all':
+#     #     repair_requests = RepairRequest.objects.filter(status=status)
+#     # else:
+#     #     repair_requests = RepairRequest.objects.filter(status__in=['received', 'inprogress', 'completed'])
+#
+#     return render(request, 'service_track_app/received2.html', {'packages': packages, 'repair_requests': repair_requests})
+
+
+# @login_required
+# @role_required(['service_center'])
+# def received_requests_view(request):
+#     if request.method == "POST":
+#         return redirect('received_requests')
+#     else:
+#         status_filter = request.GET.get('status', 'all')
+#
+#         # Для СЦ показываем все пакеты
+#         packages = Package.objects.all()
+#
+#         # Фильтрация по статусу
+#         if status_filter != 'all':
+#             packages = packages.filter(status=status_filter)
+#
+#         # Предзагрузка связанных заявок с товарами
+#         packages = packages.prefetch_related('requests__product').order_by('-created_at')
+#
+#         return render(request, "service_track_app/received.html", {
+#             "packages": packages,
+#             "current_status": status_filter
+#         })
+
+
 @login_required
 @role_required(['service_center'])
-def received_view(request):
-    packages = Package.objects.all()
-    # packages = Package.objects.prefetch_related('repairrequest_set').all()
-    repair_requests = RepairRequest.objects.filter(
-        sent_at__isnull=False,  # есть дата отправки
-        package__isnull=False,  # есть привязка к пакету
-        status='sent_to_service'  # статус "Отправлено в сервисный центр"
-    )
+def received_requests(request):
+    if request.method == "POST":
+        return redirect('received_requests')
+    else:
+        status_filter = request.GET.get('status', 'all')
+        view_type = request.GET.get('view', 'packages')  # Получаем тип view
 
-    # Фильтрация по статусу поступления
-    # status = request.GET.get('status', 'all')  # Получаем статус из параметра GET
-    # if status != 'all':
-    #     repair_requests = RepairRequest.objects.filter(status=status)
-    # else:
-    #     repair_requests = RepairRequest.objects.filter(status__in=['received', 'inprogress', 'completed'])
+        # Для СЦ показываем все пакеты
+        packages = Package.objects.all()
 
-    return render(request, 'service_track_app/received.html', {'packages': packages, 'repair_requests': repair_requests})
+        # Отдельные заявки (все заявки со статусом отправки в СЦ)
+        repair_requests = RepairRequest.objects.filter(
+            status='sent_to_service'
+        ).select_related('product').order_by('-created_at')
+
+        # Фильтрация пакетов по статусу
+        if status_filter != 'all':
+            packages = packages.filter(status=status_filter)
+
+        # Предзагрузка связанных заявок с товарами
+        packages = packages.prefetch_related('requests__product').order_by('-created_at')
+
+        print('!!!!!!!!!!!!',view_type)
+
+        return render(request, "service_track_app/received.html", {
+            "packages": packages,
+            "repair_requests": repair_requests,  # Добавляем отдельные заявки
+            "current_status": status_filter,
+            "show_requests": view_type == 'requests'  # Определяем какой вид показывать
+        })
 
 
 @login_required
@@ -259,7 +343,7 @@ def package_detail_view(request, package_id):
         back_url = reverse('sent_requests')
         back_title = "Отправленные пакеты"
     elif user_role == 'service_center':
-        back_url = reverse('received')
+        back_url = reverse('received_requests')
         back_title = "Поступившие пакеты"
 
     print(back_url)
@@ -276,11 +360,48 @@ def package_detail_view(request, package_id):
     })
 
 
-def request_detail_view(request, request_id):
-    # Получаем объект заявки по id
+def sc_package_detail(request, package_id):
+    package = get_object_or_404(Package, id=package_id)
+    # requests = package.requests.all()
+    requests = package.requests.all().prefetch_related('photos', 'videos')
+    return render(request, 'service_track_app/sc_package_detail.html', {
+        'p': package,
+        'requests': requests
+    })
+
+
+def request_detail(request, request_id):
     repair_request = get_object_or_404(RepairRequest, id=request_id)
-    print("!!!!!!!!!!!!!!!!!!!!!!!!")
-    print(repair_request.__dict__)
+    user_role = request.user.role
+
+    print("=== repair_request.package ===")
+    print(repair_request.package)  # Сам объект пакета
+    print(repair_request.package.id)  # ID пакета
+    print(repair_request.package_id)  # Прямой ID (из БД)
+
+    if user_role == 'dealer':
+        back_url = reverse('package_detail', args=[repair_request.package.id])
+        back_title = "пакету заявок"
+        package_date = repair_request.package.created_at.strftime("%d.%m.%Y")
+        breadcrumbs = [
+            {'title': 'Отправленные', 'url': reverse('sent_requests')},
+            {'title': f'Пакет от {package_date}', 'url': back_url},
+            {'title': f'Заявка #{repair_request.id}', 'url': ''}
+        ]
+    elif user_role == 'service_center':
+        if repair_request.package:
+            back_url = reverse('sc_package_detail', args=[repair_request.package.id])
+            back_title = "пакету заявок"
+            package_date = repair_request.package.created_at.strftime("%d.%m.%Y")
+            breadcrumbs = [
+                {'title': 'Поступившие в СЦ', 'url': reverse('received_requests')},
+                {'title': f'Пакет от {package_date}', 'url': back_url},
+                {'title': f'Заявка #{repair_request.id}', 'url': ''}
+            ]
+        else:
+            back_url = reverse('received_requests')
+            back_title = "поступившим заявкам"
+
     if request.method == 'POST':
         form = RepairRequestEditForm(request.POST, instance=repair_request)
         if form.is_valid():
@@ -312,13 +433,20 @@ def request_detail_view(request, request_id):
     print('photos: ',photos)
     print('videos: ', videos)
 
-    return render(request, 'service_track_app/request_detail.html', {'form': form, 'repair_request': repair_request, 'photos': photos, 'videos': videos})
+    return render(request, 'service_track_app/request_detail.html', {
+        'form': form,
+        'repair_request': repair_request,
+        'photos': photos,
+        'videos': videos,
+        'back_url': back_url,
+        'back_title': back_title,
+        'breadcrumbs': breadcrumbs
+    })
 
 
 def update_request_status(request, request_id):
     print('1'*20)
     if request.method == "POST":
-        print('!!!!!!!!!!!!!!!!!!!!!!')
         req = RepairRequest.objects.get(id=request_id)
         old_status = req.status
         new_status = request.POST.get("status")

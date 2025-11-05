@@ -1,0 +1,42 @@
+<!-- service_track_app/templates/service_track_app/includes/advanced_filters.html -->
+<div class="advanced-filters" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+    <div style="margin-bottom: 10px; font-weight: 600; color: #333;">Расширенные фильтры:</div>
+
+    <div class="filter-rows" id="filterRows">
+        <!-- Первая строка фильтра -->
+        <div class="filter-row" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <input type="checkbox" class="filter-enable" checked>
+            <select class="filter-field" style="padding: 6px; border: 1px solid #ccc; border-radius: 4px; min-width: 120px;">
+                <option value="status">Статус заявки</option>
+                <option value="warranty_status">Статус гарантии</option>
+                <option value="serial_number">Серийный номер</option>
+                <option value="product">Модель товара</option>
+                <option value="customer_name">Покупатель</option>
+                <option value="dealer_company">Дилер</option>
+                <option value="created_at">Дата создания</option>
+            </select>
+            <select class="filter-operator" style="padding: 6px; border: 1px solid #ccc; border-radius: 4px; min-width: 100px;">
+                <option value="equals">Равно</option>
+                <option value="not_equals">Не равно</option>
+                <option value="contains">Содержит</option>
+                <option value="not_contains">Не содержит</option>
+                <option value="starts_with">Начинается с</option>
+                <option value="ends_with">Заканчивается на</option>
+            </select>
+            <input type="text" class="filter-value" placeholder="Значение" style="padding: 6px; border: 1px solid #ccc; border-radius: 4px; min-width: 150px;">
+            <button type="button" class="remove-filter" style="padding: 6px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+        <button type="button" onclick="addFilterRow()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            + Добавить фильтр
+        </button>
+        <button type="button" onclick="applyAdvancedFilters()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Применить фильтры
+        </button>
+        <button type="button" onclick="clearAdvancedFilters()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Сбросить все
+        </button>
+    </div>
+</div>

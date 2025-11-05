@@ -119,6 +119,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
+    BASE_DIR / "service_track_app" / "static",
     BASE_DIR / "static",
 ]
 

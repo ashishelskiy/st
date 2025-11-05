@@ -1,0 +1,222 @@
+{% extends "service_track_app/base.html" %}
+{% block title %}Поступившие заявки{% endblock %}
+
+{% block content %}
+<div class="received-section">
+
+    <!-- Фильтры и переключение -->
+    <div class="filter-controls">
+        <button type="button" onclick="toggleReceivedView('packages')">📦 Пакеты</button>
+        <button type="button" onclick="toggleReceivedView('requests')">📄 Заявки</button>
+
+        <!-- Новый блок фильтров -->
+        <div class="advanced-filters" style="margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div class="filter-row">
+                <span>Отбор:</span>
+                <select id="filterField" onchange="updateFilterOptions()">
+                    <option value="status">Статус</option>
+                    <option value="dealer">Дилер</option>
+                    <option value="model">Модель</option>
+                    <option value="serial">Серийный номер</option>
+                    <option value="date">Дата создания</option>
+                </select>
+                <select id="filterOperator">
+                    <option value="equals">равно</option>
+                    <option value="contains">содержит</option>
+                    <option value="startswith">начинается с</option>
+                </select>
+                <input type="text" id="filterValue" placeholder="Значение">
+                <button type="button" onclick="applyAdvancedFilter()">Применить</button>
+                <button type="button" onclick="clearAdvancedFilter()">Сбросить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок с пакетами -->
+    <div id="receivedPackages" style="display:block;">
+        {% for p in packages %}
+        <div class="package-card" onclick="window.location.href='{% url 'package_detail' p.id %}'">
+            <div class="package-header">
+                <div class="package-date">📦 {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+                <div class="package-count">{{ p.request_count }} заявок</div>
+            </div>
+            <div class="package-info">
+                <div class="package-info-item">
+                    <span>🕒</span>
+                    <span>Отправлено в {{ p.created_at|date:"H:i" }}</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p>Нет отправленных пакетов</p>
+        {% endfor %}
+    </div>
+
+    <!-- Блок с отдельными заявками -->
+    <div id="receivedRequests" style="display:none;">
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th>№ заявки</th>
+                    <th>Серийный номер</th>
+                    <th>Модель</th>
+                    <th>Покупатель</th>
+                    <th>Проблема</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+                {% for r in repair_requests %}
+                <tr class="request-row" onclick="window.location.href='{% url 'request_detail' r.id %}'">
+                    <td>#{{ r.id }}</td>
+                    <td>{{ r.serial_number }}</td>
+                    <td>{{ r.model_name }}</td>
+                    <td>{{ r.customer_name }}</td>
+                    <td>{{ r.problem_description|truncatechars:50 }}</td>
+                    <td>{{ r.get_status_display }}</td>
+                    <td>{{ r.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                    <tr><td colspan="7">Нет заявок</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+function toggleReceivedView(view) {
+    document.getElementById('receivedPackages').style.display = (view === 'packages') ? 'block' : 'none';
+    document.getElementById('receivedRequests').style.display = (view === 'requests') ? 'block' : 'none';
+}
+
+function updateFilterOptions() {
+    const field = document.getElementById('filterField').value;
+    const operatorSelect = document.getElementById('filterOperator');
+
+    // Очищаем текущие опции
+    operatorSelect.innerHTML = '';
+
+    // Добавляем опции в зависимости от выбранного поля
+    if (field === 'date') {
+        operatorSelect.innerHTML = `
+            <option value="equals">равно</option>
+            <option value="after">после</option>
+            <option value="before">до</option>
+            <option value="between">между</option>
+        `;
+    } else {
+        operatorSelect.innerHTML = `
+            <option value="equals">равно</option>
+            <option value="contains">содержит</option>
+            <option value="startswith">начинается с</option>
+            <option value="endswith">заканчивается на</option>
+        `;
+    }
+}
+
+function applyAdvancedFilter() {
+    const field = document.getElementById('filterField').value;
+    const operator = document.getElementById('filterOperator').value;
+    const value = document.getElementById('filterValue').value.toLowerCase();
+
+    let rows = document.querySelectorAll('#receivedRequests tbody tr');
+
+    rows.forEach(row => {
+        let cellValue = '';
+        let display = false;
+
+        // Определяем, из какой колонки брать значение для фильтрации
+        switch(field) {
+            case 'status':
+                cellValue = row.cells[5].textContent.toLowerCase();
+                break;
+            case 'dealer':
+                // Предполагаем, что дилер находится в тексте пакета
+                cellValue = row.closest('.package-card') ?
+                    row.closest('.package-card').querySelector('.package-date').textContent.toLowerCase() :
+                    '';
+                break;
+            case 'model':
+                cellValue = row.cells[2].textContent.toLowerCase();
+                break;
+            case 'serial':
+                cellValue = row.cells[1].textContent.toLowerCase();
+                break;
+            case 'date':
+                cellValue = row.cells[6].textContent.toLowerCase();
+                break;
+        }
+
+        // Применяем оператор фильтрации
+        switch(operator) {
+            case 'equals':
+                display = cellValue === value;
+                break;
+            case 'contains':
+                display = cellValue.includes(value);
+                break;
+            case 'startswith':
+                display = cellValue.startsWith(value);
+                break;
+            case 'endswith':
+                display = cellValue.endsWith(value);
+                break;
+            case 'after':
+                // Простая проверка для дат (может потребоваться доработка)
+                display = new Date(cellValue) > new Date(value);
+                break;
+            case 'before':
+                display = new Date(cellValue) < new Date(value);
+                break;
+        }
+
+        row.style.display = display ? '' : 'none';
+    });
+}
+
+function clearAdvancedFilter() {
+    document.getElementById('filterValue').value = '';
+    let rows = document.querySelectorAll('#receivedRequests tbody tr');
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    updateFilterOptions();
+});
+</script>
+
+<style>
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-row select, .filter-row input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.filter-row button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.filter-row button:hover {
+    background-color: #0056b3;
+}
+</style>
+
+{% endblock %}

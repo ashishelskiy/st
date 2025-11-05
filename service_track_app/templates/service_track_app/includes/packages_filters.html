@@ -1,0 +1,22 @@
+<div class="filters-section">
+    <div class="filters-header">
+        <div class="filters-container">
+            <a href="?status=all&view=packages" class="filter-btn {% if current_status == 'all' or not current_status %}filter-btn-active{% endif %}">
+                <span class="filter-icon">📦</span>
+                Все пакеты
+            </a>
+            <a href="?status=sent&view=packages" class="filter-btn {% if current_status == 'sent' %}filter-btn-active{% endif %}">
+                <span class="filter-icon">📤</span>
+                Поступившие
+            </a>
+            <a href="?status=accepted&view=packages" class="filter-btn {% if current_status == 'accepted' %}filter-btn-active{% endif %}">
+                <span class="filter-icon">✅</span>
+                Принятые
+            </a>
+            <a href="?status=returned&view=packages" class="filter-btn {% if current_status == 'returned' %}filter-btn-active{% endif %}">
+                <span class="filter-icon">↩️</span>
+                Возвращенные
+            </a>
+        </div>
+    </div>
+</div>

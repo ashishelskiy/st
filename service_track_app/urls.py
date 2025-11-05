@@ -12,10 +12,11 @@ urlpatterns = [
     path('create/', views.create_request_view, name='create_request'),
     path('requests/', views.my_requests_view, name='my_requests'),
     path('sent/', views.sent_requests_view, name='sent_requests'),
-    path('received/', views.received_view, name='received'),
-    path('request_detail/<int:request_id>/', views.request_detail_view, name='request_detail'),
+    path('received/', views.received_requests, name='received_requests'),
+    path('request_detail/<int:request_id>/', views.request_detail, name='request_detail'),
     path("my-requests/send/", views.sent_requests_view, name="send_selected_requests"),
     path('package/<int:package_id>/', views.package_detail_view, name='package_detail'),
+    path('sc/package/<int:package_id>/', views.sc_package_detail, name='sc_package_detail'),
     path('update_request_status/<int:request_id>/', views.update_request_status, name='update_request_status'),
 ]
 
