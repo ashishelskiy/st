@@ -7,6 +7,17 @@
 {% endblock %}
 
 {% block content %}
+{# ✅ Сообщения от Django messages #}
+{% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="notification">
+<!--            <div id="notification" class="notification success">-->
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 <div class="sent-requests-section">
     <div class="sent-requests-section">
         <div class="breadcrumb">

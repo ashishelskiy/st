@@ -2,6 +2,17 @@
 {% block title %}Пакет {{ p.id }}{% endblock %}
 
 {% block content %}
+{# ✅ Сообщения от Django messages #}
+{% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="notification">
+<!--            <div id="notification" class="notification success">-->
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 <div id="receivedSection" class="section active">
 <div class="received-requests-section">
     <div class="breadcrumb">
