@@ -9,70 +9,151 @@
         <span class="breadcrumb-separator">›</span>
         <span class="breadcrumb-current">Пакет от {{ p.created_at|date:"d.m.Y" }}</span>
     </div>
-    <div id="packageDetailsContainer" class="package-details active">
-        <button class="back-btn" onclick="window.location.href='{% url 'received_requests' %}'">← К поступившим в СЦ</button>
-        <div class="requests-title" id="packageDetailsTitle">Отправка {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+    {% if p.status == 'sent' %}
+    <form method="post" action="{% url 'accept_selected_requests' p.id %}">
+        {% csrf_token %}
+        <div id="packageDetailsContainer" class="package-details active">
+<!--            <button class="back-btn" onclick="window.location.href='{% url 'received_requests' %}'">← К поступившим в СЦ</button>-->
+            <button type="button" class="back-btn" onclick="history.back()">← К поступившим в СЦ</button>
+            <div class="requests-title" id="packageDetailsTitle">Отправка {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
 
-        <div id="packageRequestsContainer">
-            <div class="package-requests-mini-table">
-                <table class="mini-requests-table">
-                    <thead>
-                        <tr>
-                            <th class="checkbox-header">Поступили</th>
-                            <th>Серийный номер товара</th>
-                            <th>Товар</th>
-                            <th>Покупатель</th>
-                            <th>Проблема</th>
-                            <th>Фото/Видео</th>
-                            <th>На ремонт</th>
-                            <th>Заявка создана</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for r in requests %}
-                        <tr class="package-request-row {% if r.received_by_sc %}received-row{% endif %}"
-                            data-request-id="{{ r.id }}"
-                            onclick="openRequestDetail({{ r.id }})" style="cursor: pointer;">
-                            <td class="checkbox-cell">
-                                <input type="checkbox" class="received-checkbox"
-                                       id="request-{{ r.id }}"
-                                       data-request-id="{{ r.id }}"
-                                       {% if r.received_by_sc %}checked disabled{% endif %}>
-                            </td>
-                            <td>{{ r.serial_number }}</td>
-                            <td>{{ r.product }}</td>
-                            <td>{{ r.customer_name }}</td>
-                            <td title="{{ r.problem_description }}">
-                                {{ r.problem_description|truncatechars:30 }}
-                            </td>
-                            <td class="attachments-mini">
-                                {% if r.photos.exists or r.videos.exists %}
-                                    {% if r.photos.exists %}<span title="{{ r.photos.count }} фото">🖼</span>{% endif %}
-                                    {% if r.videos.exists %}<span title="{{ r.videos.count }} видео">🎬</span>{% endif %}
-                                {% else %}
-                                    <span class="no-attachments">—</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if r.warranty_status == "warranty" %}
-                                    <span class="request-status status-sent">На гарантии</span>
-                                {% elif r.warranty_status == "paid_repair" %}
-                                    <span class="request-status status-created">Платный ремонт</span>
-                                {% elif r.warranty_status == "diagnostics" %}
-                                    <span class="request-status status-created">Диагностика</span>
-                                {% else %}
-                                    <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ r.created_at|date:"d.m.Y" }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div id="packageRequestsContainer">
+                <div class="package-requests-mini-table">
+                    <table class="mini-requests-table">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-header">Поступили</th>
+                                <th>Серийный номер товара</th>
+                                <th>Товар</th>
+                                <th>Покупатель</th>
+                                <th>Проблема</th>
+                                <th>Фото/Видео</th>
+                                <th>На ремонт</th>
+                                <th>Заявка создана</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in requests %}
+                            <tr class="package-request-row {% if r.received_by_sc %}received-row{% endif %}"
+                                data-request-id="{{ r.id }}"
+                                onclick="openRequestDetail({{ r.id }})" style="cursor: pointer;">
+                                <td class="checkbox-cell">
+                                    <input type="checkbox" class="received-checkbox"
+                                           name="selected_requests"
+                                           value="{{ r.id }}"
+                                           id="request-{{ r.id }}"
+                                           data-request-id="{{ r.id }}"
+                                           {% if r.received_by_sc %}checked disabled{% endif %}
+                                           onclick="event.stopPropagation()">
+                                </td>
+                                <td>{{ r.serial_number }}</td>
+                                <td>{{ r.product }}</td>
+                                <td>{{ r.customer_name }}</td>
+                                <td title="{{ r.problem_description }}">
+                                    {{ r.problem_description|truncatechars:30 }}
+                                </td>
+                                <td class="attachments-mini">
+                                    {% if r.photos.exists or r.videos.exists %}
+                                        {% if r.photos.exists %}<span title="{{ r.photos.count }} фото">🖼</span>{% endif %}
+                                        {% if r.videos.exists %}<span title="{{ r.videos.count }} видео">🎬</span>{% endif %}
+                                    {% else %}
+                                        <span class="no-attachments">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if r.warranty_status == "warranty" %}
+                                        <span class="request-status status-sent">На гарантии</span>
+                                    {% elif r.warranty_status == "paid_repair" %}
+                                        <span class="request-status status-created">Платный ремонт</span>
+                                    {% elif r.warranty_status == "diagnostics" %}
+                                        <span class="request-status status-created">Диагностика</span>
+                                    {% else %}
+                                        <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ r.created_at|date:"d.m.Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-    <button type="button" class="">Принять</button>
+        <button type="submit" class="accept-btn">✅ Принять</button>
+    </form>
+    {% elif p.status == 'accepted' %}
+    <form method="post" action="">
+        {% csrf_token %}
+        <div id="packageDetailsContainer" class="package-details active">
+<!--            <button class="back-btn" onclick="window.location.href='{% url 'received_requests' %}'">← К поступившим в СЦ</button>-->
+            <button type="button" class="back-btn" onclick="history.back()">← К поступившим в СЦ</button>
+            <div class="requests-title" id="packageDetailsTitle">Отправка {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
+
+            <div id="packageRequestsContainer">
+                <div class="package-requests-mini-table">
+                    <table class="mini-requests-table">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-header">Поступили</th>
+                                <th>Серийный номер товара</th>
+                                <th>Товар</th>
+                                <th>Покупатель</th>
+                                <th>Проблема</th>
+                                <th>Фото/Видео</th>
+                                <th>На ремонт</th>
+                                <th>Заявка создана</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in requests %}
+                            <tr class="package-request-row {% if r.received_by_sc %}received-row{% endif %}"
+                                data-request-id="{{ r.id }}"
+                                onclick="openRequestDetail({{ r.id }})" style="cursor: pointer;">
+                                <td class="checkbox-cell">
+                                    <input type="checkbox" class="received-checkbox"
+                                           name="selected_requests"
+                                           value="{{ r.id }}"
+                                           id="request-{{ r.id }}"
+                                           data-request-id="{{ r.id }}"
+                                           {% if r.received_by_sc %}checked disabled{% endif %}
+                                           onclick="event.stopPropagation()">
+                                </td>
+                                <td>{{ r.serial_number }}</td>
+                                <td>{{ r.product }}</td>
+                                <td>{{ r.customer_name }}</td>
+                                <td title="{{ r.problem_description }}">
+                                    {{ r.problem_description|truncatechars:30 }}
+                                </td>
+                                <td class="attachments-mini">
+                                    {% if r.photos.exists or r.videos.exists %}
+                                        {% if r.photos.exists %}<span title="{{ r.photos.count }} фото">🖼</span>{% endif %}
+                                        {% if r.videos.exists %}<span title="{{ r.videos.count }} видео">🎬</span>{% endif %}
+                                    {% else %}
+                                        <span class="no-attachments">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if r.warranty_status == "warranty" %}
+                                        <span class="request-status status-sent">На гарантии</span>
+                                    {% elif r.warranty_status == "paid_repair" %}
+                                        <span class="request-status status-created">Платный ремонт</span>
+                                    {% elif r.warranty_status == "diagnostics" %}
+                                        <span class="request-status status-created">Диагностика</span>
+                                    {% else %}
+                                        <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ r.created_at|date:"d.m.Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="accept-btn">↩️ Вернуть</button>
+    </form>
+    {% endif %}
 </div>
 </div>
 
@@ -182,13 +263,5 @@
         window.location.href = `{% url 'request_detail' 0 %}`.replace('0', requestId);
     }
 
-    // Чтобы клик по чекбоксу не переходил на страницу заявки
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.received-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('click', function(e) {
-                e.stopPropagation(); // Останавливаем всплытие события
-            });
-        });
-    });
 </script>
 {% endblock %}

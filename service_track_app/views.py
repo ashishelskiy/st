@@ -469,3 +469,50 @@ def update_request_status(request, request_id):
 
     # Если кто-то зайдёт GET-запросом — можно вернуть ошибку или редирект
     return redirect('my_requests')
+
+
+def accept_selected_requests(request, package_id):
+    if request.method == 'POST':
+        selected_ids = request.POST.getlist('selected_requests')
+        package = get_object_or_404(Package, id=package_id)
+
+        if selected_ids:
+            for request_id in selected_ids:
+                repair_request = RepairRequest.objects.get(id=request_id)
+                old_status = repair_request.status
+                print(old_status)
+                repair_request.status = 'accepted_by_dealer'
+                repair_request.save()
+
+                RequestHistory.objects.create(
+                    repair_request=repair_request,
+                    changed_by=request.user,
+                    old_status=old_status,
+                    new_status='accepted_by_dealer',
+                    comment='Заявка принята в сервисном центре'
+                )
+
+            # 🔥 ПРОВЕРЯЕМ ВСЕ ЛИ ЗАЯВКИ ПРИНЯТЫ
+            all_requests = package.requests.all()  # Все заявки пакета
+            accepted_requests = all_requests.filter(status='accepted_by_dealer')  # Принятые
+
+            total_count = all_requests.count()
+            accepted_count = accepted_requests.count()
+
+            # Если приняли ВСЕ заявки из пакета
+            if accepted_count == total_count:
+                package.status = 'accepted'
+                package.save()
+                messages.success(request, f'Приняты все {accepted_count} заявок пакета! Статус пакета обновлен.')
+            else:
+                # Приняли только часть заявок
+                messages.success(request,
+                                 f'Принято {len(selected_ids)} заявок. В пакете осталось {total_count - accepted_count} не принятых.')
+
+        else:
+            messages.warning(request, 'Не выбрано ни одной заявки для принятия')
+
+        received_url = reverse('received_requests')
+        redirect_url = f"{received_url}?status=accepted&view=packages"
+
+        return redirect(redirect_url)

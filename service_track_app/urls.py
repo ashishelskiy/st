@@ -18,6 +18,9 @@ urlpatterns = [
     path('package/<int:package_id>/', views.package_detail_view, name='package_detail'),
     path('sc/package/<int:package_id>/', views.sc_package_detail, name='sc_package_detail'),
     path('update_request_status/<int:request_id>/', views.update_request_status, name='update_request_status'),
+    path('package/<int:package_id>/accept-selected/',
+         views.accept_selected_requests,
+         name='accept_selected_requests'),
 ]
 
 if settings.DEBUG:
