@@ -566,3 +566,66 @@ def accept_selected_requests(request, package_id):
             messages.warning(request, 'Не выбрано ни одной заявки для принятия')
 
         return redirect('sc_package_detail', package_id=package_id)
+
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
+
+
+@csrf_exempt
+def update_request_field(request, request_id):
+    print("🎯 Получен запрос для заявки:", request_id)
+
+    try:
+        # Получаем заявку из базы
+        service_request = RepairRequest.objects.get(id=request_id)
+        print(f"📦 Найдена заявка: {service_request}")
+
+        # Получаем имя поля и значение из POST данных
+        post_data = dict(request.POST)
+        field_name = None
+        field_value = None
+
+        # Ищем поле для обновления (исключая csrf token)
+        for key, value in post_data.items():
+            if key != 'csrfmiddlewaretoken':
+                field_name = key
+                field_value = value[0] if value else ''  # Берем первое значение
+                break
+
+        if field_name and hasattr(service_request, field_name):
+            print(f"✏️ Обновляем поле '{field_name}' на '{field_value}'")
+
+            # Обновляем поле в модели
+            setattr(service_request, field_name, field_value)
+            service_request.save()
+
+            print(f"✅ Данные сохранены в базу!")
+
+            return JsonResponse({
+                'success': True,
+                'message': f'Поле {field_name} обновлено',
+                'request_id': request_id,
+                'field': field_name,
+                'value': field_value
+            })
+        else:
+            print(f"❌ Поле '{field_name}' не найдено в модели")
+            return JsonResponse({
+                'success': False,
+                'error': f'Поле {field_name} не найдено'
+            }, status=400)
+
+    except RepairRequest.DoesNotExist:
+        print(f"❌ Заявка {request_id} не найдена")
+        return JsonResponse({
+            'success': False,
+            'error': 'Заявка не найдена'
+        }, status=404)
+    except Exception as e:
+        print(f"❌ Ошибка: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

@@ -21,6 +21,7 @@ urlpatterns = [
     path('package/<int:package_id>/accept-selected/',
          views.accept_selected_requests,
          name='accept_selected_requests'),
+    path('api/request/<int:request_id>/update/', views.update_request_field, name='update_request_field'),
 ]
 
 if settings.DEBUG:

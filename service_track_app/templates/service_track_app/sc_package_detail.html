@@ -7,24 +7,23 @@
     <div>
         {% for message in messages %}
             <div class="notification">
-<!--            <div id="notification" class="notification success">-->
                 {{ message }}
             </div>
         {% endfor %}
     </div>
 {% endif %}
-<div id="receivedSection" class="section active">
+
 <div class="received-requests-section">
     <div class="breadcrumb">
         <span class="breadcrumb-item" onclick="window.location.href='{% url 'received_requests' %}'">📦 Поступившие в СЦ</span>
         <span class="breadcrumb-separator">›</span>
         <span class="breadcrumb-current">Пакет от {{ p.created_at|date:"d.m.Y" }}</span>
     </div>
+
     {% if p.status == 'sent' %}
-    <form method="post" action="{% url 'accept_selected_requests' p.id %}">
+    <form method="post" action="{% url 'accept_selected_requests' p.id %}" id="packageForm">
         {% csrf_token %}
         <div id="packageDetailsContainer" class="package-details active">
-<!--            <button class="back-btn" onclick="window.location.href='{% url 'received_requests' %}'">← К поступившим в СЦ</button>-->
             <button type="button" class="back-btn" onclick="history.back()">← К поступившим в СЦ</button>
             <div class="requests-title" id="packageDetailsTitle">Отправка {{ p.dealer_company }} от {{ p.created_at|date:"d.m.Y" }}</div>
 
@@ -41,29 +40,53 @@
                                 <th>Фото/Видео</th>
                                 <th>На ремонт</th>
                                 <th>Заявка создана</th>
+                                <th class="action-header">Действия</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for r in requests %}
                             <tr class="package-request-row {% if r.received_by_sc %}received-row{% endif %}"
-                                data-request-id="{{ r.id }}"
-                                onclick="openRequestDetail({{ r.id }})" style="cursor: pointer;">
+                                data-request-id="{{ r.id }}">
                                 <td class="checkbox-cell">
                                     <input type="checkbox" class="received-checkbox"
                                            name="selected_requests"
                                            value="{{ r.id }}"
                                            id="request-{{ r.id }}"
                                            data-request-id="{{ r.id }}"
-                                           {% if r.received_by_sc %}checked disabled{% endif %}
-                                           onclick="event.stopPropagation()">
+                                           {% if r.received_by_sc %}checked disabled{% endif %}>
                                 </td>
-                                <td>{{ r.serial_number }}</td>
-                                <td>{{ r.product }}</td>
-                                <td>{{ r.customer_name }}</td>
-                                <td title="{{ r.problem_description }}">
-                                    {{ r.problem_description|truncatechars:30 }}
+
+                                <!-- Серийный номер - редактируемый по клику -->
+                                <td class="editable-field" data-field="serial_number">
+                                    <span class="field-value">{{ r.serial_number }}</span>
+                                    <input type="text" class="field-input" value="{{ r.serial_number }}" style="display: none;">
                                 </td>
-                                <td class="attachments-mini">
+
+                                <!-- Товар - редактируемый по клику -->
+<!--                                <td class="editable-field" data-field="product">-->
+<!--                                    <span class="field-value">{{ r.product }}</span>-->
+<!--                                    <input type="text" class="field-input" value="{{ r.product }}" style="display: none;">-->
+<!--                                </td>-->
+                                <!-- Товар - НЕ редактируемый -->
+                                <td class="product-cell">
+                                    <span>{{ r.product }}</span>
+                                </td>
+
+                                <!-- Покупатель - редактируемый по клику -->
+                                <td class="editable-field" data-field="customer_name">
+                                    <span class="field-value">{{ r.customer_name }}</span>
+                                    <input type="text" class="field-input" value="{{ r.customer_name }}" style="display: none;">
+                                </td>
+
+                                <!-- Проблема - редактируемая по клику -->
+                                <td class="editable-field" data-field="problem_description">
+                                    <span class="field-value" title="{{ r.problem_description }}">
+                                        {{ r.problem_description|truncatechars:30 }}
+                                    </span>
+                                    <textarea class="field-input" style="display: none;">{{ r.problem_description }}</textarea>
+                                </td>
+
+                                <td class="attachments-mini attachments-cell">
                                     {% if r.photos.exists or r.videos.exists %}
                                         {% if r.photos.exists %}<span title="{{ r.photos.count }} фото">🖼</span>{% endif %}
                                         {% if r.videos.exists %}<span title="{{ r.videos.count }} видео">🎬</span>{% endif %}
@@ -71,18 +94,35 @@
                                         <span class="no-attachments">—</span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    {% if r.warranty_status == "warranty" %}
-                                        <span class="request-status status-sent">На гарантии</span>
-                                    {% elif r.warranty_status == "paid_repair" %}
-                                        <span class="request-status status-created">Платный ремонт</span>
-                                    {% elif r.warranty_status == "diagnostics" %}
-                                        <span class="request-status status-created">Диагностика</span>
-                                    {% else %}
-                                        <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
-                                    {% endif %}
+
+                                <!-- Статус гарантии - редактируемый по клику -->
+                                <td class="editable-field" data-field="warranty_status">
+                                    <span class="field-value">
+                                        {% if r.warranty_status == "warranty" %}
+                                            <span class="request-status status-sent">На гарантии</span>
+                                        {% elif r.warranty_status == "paid_repair" %}
+                                            <span class="request-status status-created">Платный ремонт</span>
+                                        {% elif r.warranty_status == "diagnostics" %}
+                                            <span class="request-status status-created">Диагностика</span>
+                                        {% else %}
+                                            <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
+                                        {% endif %}
+                                    </span>
+                                    <select class="field-input" style="display: none;">
+                                        <option value="warranty" {% if r.warranty_status == "warranty" %}selected{% endif %}>На гарантии</option>
+                                        <option value="paid_repair" {% if r.warranty_status == "paid_repair" %}selected{% endif %}>Платный ремонт</option>
+                                        <option value="diagnostics" {% if r.warranty_status == "diagnostics" %}selected{% endif %}>Диагностика</option>
+                                    </select>
                                 </td>
-                                <td>{{ r.created_at|date:"d.m.Y" }}</td>
+
+                                <td class="created-date-cell">{{ r.created_at|date:"d.m.Y" }}</td>
+
+                                <!-- Кнопка для детального просмотра -->
+                                <td class="action-cell">
+                                    <a href="{% url 'request_detail' r.id %}" class="detail-btn" title="Открыть детальную страницу">
+                                        👁️
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -92,6 +132,7 @@
         </div>
         <button type="submit" class="accept-btn">✅ Принять</button>
     </form>
+
     {% elif p.status == 'accepted' %}
     <form method="post" action="">
         {% csrf_token %}
@@ -166,113 +207,387 @@
     </form>
     {% endif %}
 </div>
-</div>
 
 <style>
-.requests-title {
-    /*font-size: 1.2rem;*/
-    font-size: 1.0rem;
-    font-weight: 600;
-    color: #333;
-    /*flex: 1;*/
-}
-.package-requests-mini-table {
-    margin: 10px 0;
-    max-height: none; /* Убираем ограничение высоты для детальной страницы */
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
-}
+/* Существующие стили остаются */
 
-.mini-requests-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8em; /* Чуть больше для читаемости */
-}
-
-.mini-requests-table th {
-    background-color: #f5f5f5;
-    padding: 6px 8px;
-    text-align: left;
-    font-weight: 600;
-    border-bottom: 1px solid #e0e0e0;
-    position: sticky;
-    top: 0;
-}
-
-.mini-requests-table td {
-    padding: 4px 6px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.mini-requests-table tr:last-child td {
-    border-bottom: none;
-}
-
-.request-status {
-    padding: 2px 6px;
-    border-radius: 3px;
+/* Добавляем стиль для статуса "Принято" */
+.status-accepted {
+    background-color: #4CAF50;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
     font-size: 0.8em;
-    white-space: nowrap;
+    font-weight: bold;
 }
 
-.status-sent {
-    background-color: #e3f2fd;
-    color: #1976d2;
-}
-
-.status-created {
-    background-color: #fff3e0;
-    color: #f57c00;
-}
-
-/* Стили для чекбоксов и состояния */
-.checkbox-header {
-    text-align: center;
-    width: 60px;
-}
-
-.checkbox-cell {
-    text-align: center;
-    vertical-align: middle;
-}
-
-.received-checkbox {
-    transform: scale(1.1);
+/* Стиль для кнопки Вернуть */
+.return-btn {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 1em;
+    margin-top: 15px;
+    transition: background-color 0.3s;
 }
 
-.received-row {
-    background-color: #f8fff9 !important;
+.return-btn:hover {
+    background-color: #f57c00;
 }
 
-.attachments-mini {
-    text-align: center;
-}
-
-.attachments-mini span {
-    cursor: help;
-    opacity: 0.8;
-}
-
-.no-attachments {
-    color: #999;
-    font-style: italic;
-}
-
-.package-request-row {
+/* Стили для редактируемых полей */
+.editable-field {
     cursor: pointer;
+    position: relative;
     transition: background-color 0.2s;
 }
 
-.package-request-row:hover {
+.editable-field:hover {
+    background-color: #f0f8ff !important;
+}
+
+.field-input {
+    width: 100%;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 0.8em;
+    box-sizing: border-box;
+    background: white;
+    font-family: inherit;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 0 3px rgba(0,123,255,.1);
+}
+
+/* Для textarea в поле проблемы */
+.field-input.textarea {
+    min-height: 50px;
+    resize: vertical;
+}
+
+/* Для select */
+.field-input.select {
+    cursor: pointer;
+}
+
+/* Стили для кнопки детального просмотра */
+.action-header {
+    width: 80px;
+    text-align: center;
+}
+
+.action-cell {
+    text-align: center;
+    padding: 4px 2px !important;
+}
+
+.detail-btn {
+    display: inline-block;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.detail-btn:hover {
     background-color: #f8f9fa;
+    border-color: #007bff;
+    transform: scale(1.05);
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Подсказка при наведении на редактируемые поля */
+.editable-field:hover::after {
+    content: "Двойной клик для редактирования";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7em;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
 }
 </style>
+
 <script>
-    function openRequestDetail(requestId) {
-        window.location.href = `{% url 'request_detail' 0 %}`.replace('0', requestId);
+// JavaScript код ТОЛЬКО для статуса 'sent' (редактирование)
+function openRequestDetail(requestId) {
+    window.location.href = `{% url 'request_detail' 0 %}`.replace('0', requestId);
+}
+
+// Глобальная переменная для отслеживания текущего редактируемого поля
+let currentlyEditingCell = null;
+
+// ОСНОВНОЙ ОБРАБОТЧИК ДВОЙНОГО КЛИКА (только для статуса 'sent')
+document.addEventListener('DOMContentLoaded', function() {
+    // Двойной клик для редактирования (только для статуса 'sent')
+    document.querySelectorAll('.editable-field').forEach(cell => {
+        cell.addEventListener('dblclick', function(e) {
+            e.stopPropagation();
+            startEditing(this);
+        });
+    });
+
+    // Обычный клик по строке - открываем заявку (для обоих статусов)
+    document.querySelectorAll('.package-request-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Если кликнули не на редактируемом поле, не на чекбоксе, не на field-input и не на кнопке
+            if (!e.target.closest('.editable-field') &&
+                !e.target.closest('.received-checkbox') &&
+                !e.target.closest('.field-input') &&
+                !e.target.closest('.detail-btn') &&
+                !e.target.closest('.product-cell') &&
+                !e.target.closest('.attachments-cell') &&
+                !e.target.closest('.created-date-cell')) {
+                const requestId = this.dataset.requestId;
+                openRequestDetail(requestId);
+            }
+        });
+    });
+
+    // Чекбоксы не должны открывать заявку
+    document.querySelectorAll('.received-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+
+    // Предотвращаем отправку формы при клике на ссылки внутри формы
+    document.querySelectorAll('.detail-btn').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+
+    // Закрывать редактирование при клике вне поля (только для статуса 'sent')
+    document.addEventListener('click', function(e) {
+        if (currentlyEditingCell &&
+            !currentlyEditingCell.contains(e.target) &&
+            !e.target.closest('.editable-field')) {
+            // Небольшая задержка чтобы дать обработаться другим кликам
+            setTimeout(() => {
+                if (currentlyEditingCell) {
+                    finishEditing(currentlyEditingCell, false); // Сохраняем изменения
+                }
+            }, 10);
+        }
+    });
+
+    // Также закрывать по Escape (только для статуса 'sent')
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && currentlyEditingCell) {
+            finishEditing(currentlyEditingCell, true); // true = отмена
+        }
+    });
+
+    // Предотвращаем отправку формы при нажатии Enter в полях ввода
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.closest('.field-input')) {
+            e.stopPropagation();
+        }
+    });
+});
+
+// ФУНКЦИЯ РЕДАКТИРОВАНИЯ (только для статуса 'sent')
+function startEditing(cell) {
+    // Закрываем предыдущее редактируемое поле
+    if (currentlyEditingCell && currentlyEditingCell !== cell) {
+        finishEditing(currentlyEditingCell, false); // Сохраняем изменения предыдущего поля
     }
 
+    const valueElement = cell.querySelector('.field-value');
+    const inputElement = cell.querySelector('.field-input');
+
+    valueElement.style.display = 'none';
+    inputElement.style.display = 'block';
+
+    // Сохраняем исходное значение для возможного отката
+    cell._originalValue = inputElement.value;
+
+    if (inputElement.tagName === 'INPUT' || inputElement.tagName === 'TEXTAREA') {
+        inputElement.select();
+    } else if (inputElement.tagName === 'SELECT') {
+        inputElement.focus();
+    }
+
+    currentlyEditingCell = cell;
+
+    // Добавляем обработчики
+    if (inputElement.tagName === 'SELECT') {
+        inputElement.addEventListener('change', function() {
+            finishEditing(cell, false);
+        });
+    } else {
+        inputElement.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                finishEditing(cell, false);
+            }
+        });
+    }
+}
+
+// ФУНКЦИЯ ЗАВЕРШЕНИЯ РЕДАКТИРОВАНИЯ (только для статуса 'sent')
+async function finishEditing(cell, cancel = false) {
+    if (!cell) return;
+
+    const valueElement = cell.querySelector('.field-value');
+    const inputElement = cell.querySelector('.field-input');
+    const fieldName = cell.dataset.field;
+    const requestId = cell.closest('tr').dataset.requestId;
+
+    let newValue;
+    if (cancel) {
+        // Возвращаем исходное значение при отмене
+        newValue = cell._originalValue;
+        if (inputElement.tagName === 'SELECT') {
+            inputElement.value = newValue;
+        } else {
+            inputElement.value = newValue;
+        }
+    } else {
+        newValue = inputElement.value;
+    }
+
+    // Обновляем отображение
+    updateDisplayValue(cell, newValue);
+
+    // Прячем input, показываем value
+    inputElement.style.display = 'none';
+    valueElement.style.display = 'inline';
+
+    // Сохраняем на сервер только если не отмена и значение изменилось
+    if (!cancel && newValue !== cell._originalValue) {
+        await trySaveToServer(requestId, fieldName, newValue);
+    }
+
+    // Удаляем обработчики
+    if (inputElement.tagName === 'SELECT') {
+        inputElement.replaceWith(inputElement.cloneNode(true));
+    }
+
+    // Сбрасываем текущее редактируемое поле
+    if (currentlyEditingCell === cell) {
+        currentlyEditingCell = null;
+    }
+}
+
+// ОБНОВЛЕНИЕ ОТОБРАЖЕНИЯ
+function updateDisplayValue(cell, newValue) {
+    const valueElement = cell.querySelector('.field-value');
+    const fieldName = cell.dataset.field;
+
+    if (fieldName === 'warranty_status') {
+        const inputElement = cell.querySelector('.field-input');
+        const selectedOption = inputElement.options[inputElement.selectedIndex];
+        const statusText = selectedOption ? selectedOption.text : 'Не выбрано';
+        const statusClass = inputElement.value === 'warranty' ? 'status-sent' : 'status-created';
+        valueElement.innerHTML = `<span class="request-status ${statusClass}">${statusText}</span>`;
+    } else if (fieldName === 'problem_description') {
+        valueElement.textContent = newValue.length > 30 ? newValue.substring(0, 30) + '...' : newValue;
+        valueElement.setAttribute('title', newValue);
+    } else {
+        valueElement.textContent = newValue;
+    }
+}
+
+// СОХРАНЕНИЕ НА СЕРВЕР
+async function trySaveToServer(requestId, fieldName, value) {
+    const csrfToken = getCSRFToken();
+    const formData = new FormData();
+    formData.append(fieldName, value);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    try {
+        const response = await fetch(`/api/request/${requestId}/update/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('✅ Изменения сохранены', 'success');
+            return true;
+        } else {
+            showNotification('❌ Ошибка: ' + result.error, 'error');
+            return false;
+        }
+    } catch (error) {
+        showNotification('❌ Ошибка сети', 'error');
+        return false;
+    }
+}
+
+// УВЕДОМЛЕНИЯ
+function showNotification(message, type) {
+    // Проверяем, нет ли уже уведомления
+    const existingNotification = document.querySelector('.custom-notification');
+    if (existingNotification) {
+        document.body.removeChild(existingNotification);
+    }
+
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.className = 'custom-notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 4px;
+        color: white;
+        font-weight: bold;
+        z-index: 10000;
+        transition: opacity 0.3s;
+        ${type === 'success' ? 'background: #4CAF50;' : 'background: #f44336;'}
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// CSRF ТОКЕН
+function getCSRFToken() {
+    let token = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (token && token.value) return token.value;
+
+    token = document.querySelector('meta[name="csrf-token"]');
+    if (token && token.getAttribute('content')) return token.getAttribute('content');
+
+    const cookieMatch = document.cookie.match(/csrftoken=([^;]+)/);
+    if (cookieMatch) return cookieMatch[1];
+
+    return '';
+}
 </script>
 {% endblock %}
