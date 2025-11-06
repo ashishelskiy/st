@@ -370,6 +370,80 @@ def sc_package_detail(request, package_id):
     })
 
 
+# def request_detail(request, request_id):
+#     repair_request = get_object_or_404(RepairRequest, id=request_id)
+#     user_role = request.user.role
+#
+#     print("=== repair_request.package ===")
+#     print(repair_request.package)  # Сам объект пакета
+#     print(repair_request.package.id)  # ID пакета
+#     print(repair_request.package_id)  # Прямой ID (из БД)
+#
+#     if user_role == 'dealer':
+#         back_url = reverse('package_detail', args=[repair_request.package.id])
+#         back_title = "пакету заявок"
+#         package_date = repair_request.package.created_at.strftime("%d.%m.%Y")
+#         breadcrumbs = [
+#             {'title': 'Отправленные', 'url': reverse('sent_requests')},
+#             {'title': f'Пакет от {package_date}', 'url': back_url},
+#             {'title': f'Заявка #{repair_request.id}', 'url': ''}
+#         ]
+#     elif user_role == 'service_center':
+#         if repair_request.package:
+#             back_url = reverse('sc_package_detail', args=[repair_request.package.id])
+#             back_title = "пакету заявок"
+#             package_date = repair_request.package.created_at.strftime("%d.%m.%Y")
+#             breadcrumbs = [
+#                 {'title': 'Поступившие в СЦ', 'url': reverse('received_requests')},
+#                 {'title': f'Пакет от {package_date}', 'url': back_url},
+#                 {'title': f'Заявка #{repair_request.id}', 'url': ''}
+#             ]
+#         else:
+#             back_url = reverse('received_requests')
+#             back_title = "поступившим заявкам"
+#
+#     if request.method == 'POST':
+#         form = RepairRequestEditForm(request.POST, instance=repair_request)
+#         if form.is_valid():
+#             # print("Форма валидна. Данные:", form.cleaned_data)  # Печатает данные, которые форма прошла валидацию
+#             # form.save()
+#             # print("Данные сохранены.")
+#             previous_status = RepairRequest.objects.get(id=repair_request.id).status
+#
+#             updated_request = form.save(commit=False)
+#             updated_request.save()  # сохраняем изменения
+#
+#             # создаём запись в истории
+#             RequestHistory.objects.create(
+#                 repair_request=updated_request,
+#                 changed_by=request.user,
+#                 old_status=previous_status,
+#                 new_status=updated_request.status,
+#                 comment=updated_request.additional_notes  # или другое поле комментария
+#             )
+#             return redirect('request_detail', request_id=repair_request.id)
+#         else:
+#             print("Ошибки формы:", form.errors)
+#     else:
+#         form = RepairRequestEditForm(instance=repair_request)
+#
+#     # Получаем все фото для этой заявки
+#     photos = repair_request.photos.all()  # если используется related_name='photos'
+#     videos = repair_request.videos.all()
+#     print('photos: ',photos)
+#     print('videos: ', videos)
+#
+#     return render(request, 'service_track_app/request_detail.html', {
+#         'form': form,
+#         'repair_request': repair_request,
+#         'photos': photos,
+#         'videos': videos,
+#         'back_url': back_url,
+#         'back_title': back_title,
+#         'breadcrumbs': breadcrumbs
+#     })
+
+
 def request_detail(request, request_id):
     repair_request = get_object_or_404(RepairRequest, id=request_id)
     user_role = request.user.role
@@ -379,35 +453,26 @@ def request_detail(request, request_id):
     print(repair_request.package.id)  # ID пакета
     print(repair_request.package_id)  # Прямой ID (из БД)
 
+    # УПРОЩЕННАЯ ЛОГИКА НАВИГАЦИИ - ВСЕГДА ВОЗВРАЩАЕМ В СПИСОК
     if user_role == 'dealer':
-        back_url = reverse('package_detail', args=[repair_request.package.id])
-        back_title = "пакету заявок"
-        package_date = repair_request.package.created_at.strftime("%d.%m.%Y")
+        back_url = reverse('sent_requests')
+        back_title = "отправленным заявкам"
         breadcrumbs = [
-            {'title': 'Отправленные', 'url': reverse('sent_requests')},
-            {'title': f'Пакет от {package_date}', 'url': back_url},
+            {'title': 'Отправленные', 'url': back_url},
             {'title': f'Заявка #{repair_request.id}', 'url': ''}
         ]
     elif user_role == 'service_center':
-        if repair_request.package:
-            back_url = reverse('sc_package_detail', args=[repair_request.package.id])
-            back_title = "пакету заявок"
-            package_date = repair_request.package.created_at.strftime("%d.%m.%Y")
-            breadcrumbs = [
-                {'title': 'Поступившие в СЦ', 'url': reverse('received_requests')},
-                {'title': f'Пакет от {package_date}', 'url': back_url},
-                {'title': f'Заявка #{repair_request.id}', 'url': ''}
-            ]
-        else:
-            back_url = reverse('received_requests')
-            back_title = "поступившим заявкам"
+        back_url = reverse('received_requests')
+        back_title = "поступившим заявкам"
+        breadcrumbs = [
+            {'title': 'Поступившие в СЦ', 'url': back_url},
+            {'title': f'Заявка #{repair_request.id}', 'url': ''}
+        ]
 
+    # ОСТАЛЬНОЙ КОД БЕЗ ИЗМЕНЕНИЙ
     if request.method == 'POST':
         form = RepairRequestEditForm(request.POST, instance=repair_request)
         if form.is_valid():
-            # print("Форма валидна. Данные:", form.cleaned_data)  # Печатает данные, которые форма прошла валидацию
-            # form.save()
-            # print("Данные сохранены.")
             previous_status = RepairRequest.objects.get(id=repair_request.id).status
 
             updated_request = form.save(commit=False)
@@ -419,7 +484,7 @@ def request_detail(request, request_id):
                 changed_by=request.user,
                 old_status=previous_status,
                 new_status=updated_request.status,
-                comment=updated_request.additional_notes  # или другое поле комментария
+                comment=updated_request.additional_notes
             )
             return redirect('request_detail', request_id=repair_request.id)
         else:
@@ -428,7 +493,7 @@ def request_detail(request, request_id):
         form = RepairRequestEditForm(instance=repair_request)
 
     # Получаем все фото для этой заявки
-    photos = repair_request.photos.all()  # если используется related_name='photos'
+    photos = repair_request.photos.all()
     videos = repair_request.videos.all()
     print('photos: ',photos)
     print('videos: ', videos)

@@ -330,7 +330,17 @@
 <script>
 // JavaScript код ТОЛЬКО для статуса 'sent' (редактирование)
 function openRequestDetail(requestId) {
-    window.location.href = `{% url 'request_detail' 0 %}`.replace('0', requestId);
+    // Получаем ID пакета из текущего URL
+    const currentUrl = window.location.href;
+    const packageMatch = currentUrl.match(/package\/(\d+)/);
+
+    if (packageMatch) {
+        const packageId = packageMatch[1];
+        // Переходим на страницу заявки с параметром from_package
+        window.location.href = `{% url 'request_detail' 0 %}?from_package=${packageId}`.replace('0', requestId);
+    } else {
+        window.location.href = `{% url 'request_detail' 0 %}`.replace('0', requestId);
+    }
 }
 
 // Глобальная переменная для отслеживания текущего редактируемого поля
