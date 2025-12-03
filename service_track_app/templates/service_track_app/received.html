@@ -76,7 +76,7 @@
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ r.serial_number }}</td>
-                                    <td>{{ r.product.display_name|truncatechars:40  }}</td>
+                                    <td>{{ r.product }}</td>
                                     <td>
                                         {% if r.warranty_status == "warranty" %}
                                             <span class="request-status status-sent">На гарантии</span>
