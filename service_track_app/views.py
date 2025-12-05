@@ -453,12 +453,6 @@ def request_detail(request, request_id):
     repair_request = get_object_or_404(RepairRequest, id=request_id)
     user_role = request.user.role
 
-    print("=== repair_request.package ===")
-    print(repair_request.package)  # Сам объект пакета
-    print(repair_request.package.id)  # ID пакета
-    print(repair_request.package_id)  # Прямой ID (из БД)
-
-    # УПРОЩЕННАЯ ЛОГИКА НАВИГАЦИИ - ВСЕГДА ВОЗВРАЩАЕМ В СПИСОК
     if user_role == 'dealer':
         back_url = reverse('sent_requests')
         back_title = "отправленным заявкам"
@@ -474,7 +468,6 @@ def request_detail(request, request_id):
             {'title': f'Заявка #{repair_request.id}', 'url': ''}
         ]
 
-    # ОСТАЛЬНОЙ КОД БЕЗ ИЗМЕНЕНИЙ
     if request.method == 'POST':
         form = RepairRequestEditForm(request.POST, instance=repair_request)
         if form.is_valid():
@@ -523,7 +516,6 @@ def request_detail(request, request_id):
 #     print(repair_request.package.id)
 #     print(repair_request.package_id)
 #
-#     # УПРОЩЕННАЯ ЛОГИКА НАВИГАЦИИ
 #     if user_role == 'dealer':
 #         back_url = reverse('sent_requests')
 #         back_title = "отправленным заявкам"
@@ -539,7 +531,6 @@ def request_detail(request, request_id):
 #             {'title': f'Заявка #{repair_request.id}', 'url': ''}
 #         ]
 #
-#     # ОСТАЛЬНОЙ КОД С ОТЛАДКОЙ
 #     if request.method == 'POST':
 #         print("=" * 50)
 #         print("🚀 ПОЛУЧЕН POST ЗАПРОС")

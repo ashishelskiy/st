@@ -22,7 +22,7 @@
                 onclick="window.location.href='{{ back_url }}'">
                 ← К {{ back_title }}
             </button>
-            <button class="action-btn btn-primary" type="submit">💾 Сохранить</button>
+<!--            <button class="action-btn btn-primary" type="submit">💾 Сохранить</button>-->
         </div>
 
         <div class="request-detail-header">
@@ -160,24 +160,24 @@
                     </div>
                 </div>
 
-                <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-                    <label for="id_act_status" class="details-label">Статус акта</label>
-                    {{ form.act_status }}
-                </div>
+<!--                <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">-->
+<!--                    <label for="id_act_status" class="details-label">Статус акта</label>-->
+<!--                    {{ form.act_status }}-->
+<!--                </div>-->
 
-                {% if repair_request.conclusion and repair_request.decision %}
-                    <button type="button"
-                            onclick="window.open('{% url 'generate_act_docx' repair_request.id %}', '_blank')"
-                            title="Скачать акт (Word)"
-                            style="margin-top: 20px; padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 18px;">📄</span>
-                        <span>Скачать акт (Word)</span>
-                    </button>
-                {% else %}
-                    <div style="margin-top: 20px; padding: 12px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
-                        ⚠️ Для скачивания акта заполните "Заключение" и "Принятое решение" и нажмите "Сохранить"
-                    </div>
-                {% endif %}
+<!--                {% if repair_request.conclusion and repair_request.decision %}-->
+<!--                    <button type="button"-->
+<!--                            onclick="window.open('{% url 'generate_act_docx' repair_request.id %}', '_blank')"-->
+<!--                            title="Скачать акт (Word)"-->
+<!--                            style="margin-top: 20px; padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;">-->
+<!--                        <span style="font-size: 18px;">📄</span>-->
+<!--                        <span>Скачать акт (Word)</span>-->
+<!--                    </button>-->
+<!--                {% else %}-->
+<!--                    <div style="margin-top: 20px; padding: 12px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">-->
+<!--                        ⚠️ Для скачивания акта заполните "Заключение" и "Принятое решение" и нажмите "Сохранить"-->
+<!--                    </div>-->
+<!--                {% endif %}-->
             </div>
 
             <!-- Гарантийный ремонт -->
@@ -308,10 +308,205 @@
                     </div>
                 </div>
             </div>
+            <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                <label for="id_act_status" class="details-label">Статус акта</label>
+                {{ form.act_status }}
+            </div>
+            {% if repair_request.conclusion and repair_request.decision %}
+                <button type="button"
+                        onclick="window.open('{% url 'generate_act_docx' repair_request.id %}', '_blank')"
+                        title="Скачать акт (Word)"
+                        style="margin-top: 20px; padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">📄</span>
+                    <span>Скачать акт (Word)</span>
+                </button>
+            {% else %}
+                <div style="margin-top: 20px; padding: 12px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+                    ⚠️ Для скачивания акта заполните "Заключение" и "Принятое решение" и нажмите "Сохранить"
+                </div>
+            {% endif %}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <small style="color: #666; font-size: 12px;">
+                    ⓘ Не забудьте сохранить изменения
+                </small>
+                <button class="action-btn btn-primary" type="submit"
+                        style="padding: 10px 25px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                    <span>💾</span>
+                    Сохранить изменения
+                </button>
+            </div>
         </div>
     </form>
+    <div id="confirmationModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+        <div class="modal-content" style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); max-width: 400px; width: 90%;">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="font-size: 24px; margin-bottom: 10px;">⚠️</div>
+                <h3 style="margin: 0 0 10px 0; color: #333;">Подтверждение сохранения</h3>
+                <p style="color: #666; margin: 0; font-size: 14px;">
+                    Вы уверены, что хотите сохранить изменения в заявке #{{ repair_request.id }}?
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button type="button" id="confirmSaveBtn"
+                        style="padding: 10px 25px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; flex: 1;">
+                    Да, сохранить
+                </button>
+                <button type="button" id="cancelSaveBtn"
+                        style="padding: 10px 25px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; flex: 1;">
+                    Нет, отмена
+                </button>
+            </div>
+
+            <div style="margin-top: 15px; text-align: center;">
+                <small style="color: #888; font-size: 12px;">
+                    ⓘ Все изменения будут сохранены в базе данных
+                </small>
+            </div>
+        </div>
+    </div>
 </div>
+<!-- ... ваш HTML код ... -->
+
+</form>
+    <div id="confirmationModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+        <!-- ... модальное окно ... -->
+    </div>
+</div>
+
 <script>
+// ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+
+let originalForm = null;
+let isSubmitting = false;
+let isFormChanged = false;
+let initialFormData = null;
+
+// ========== ФУНКЦИИ ДЛЯ МОДАЛЬНОГО ОКНА ==========
+
+function showConfirmationModal() {
+    // Проверяем, есть ли изменения
+    if (!isFormChanged) {
+        alert('Нет изменений для сохранения');
+        return;
+    }
+
+    const modal = document.getElementById('confirmationModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function hideConfirmationModal() {
+    const modal = document.getElementById('confirmationModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function confirmSave() {
+    if (isSubmitting) return;
+
+    isSubmitting = true;
+    const submitBtn = document.querySelector('button[type="submit"]');
+
+    if (submitBtn) {
+        submitBtn.innerHTML = '⏳ Сохранение...';
+        submitBtn.disabled = true;
+
+        setTimeout(() => {
+            originalForm.submit();
+        }, 500);
+    }
+}
+
+function cancelSave() {
+    hideConfirmationModal();
+    isSubmitting = false;
+}
+
+// ========== ОТСЛЕЖИВАНИЕ ИЗМЕНЕНИЙ В ФОРМЕ ==========
+
+function getFormData() {
+    const form = document.querySelector('form[method="POST"]');
+    if (!form) return null;
+
+    const formData = new FormData(form);
+    const data = {};
+
+    for (let [key, value] of formData.entries()) {
+        if (data[key]) {
+            if (Array.isArray(data[key])) {
+                data[key].push(value);
+            } else {
+                data[key] = [data[key], value];
+            }
+        } else {
+            data[key] = value;
+        }
+    }
+
+    return JSON.stringify(data);
+}
+
+function checkFormChanges() {
+    const currentData = getFormData();
+
+    if (!initialFormData) {
+        initialFormData = currentData;
+        return false;
+    }
+
+    isFormChanged = (currentData !== initialFormData);
+    updateSaveButtonState();
+
+    return isFormChanged;
+}
+
+function updateSaveButtonState() {
+    const saveButton = document.querySelector('button[type="submit"]');
+
+    if (saveButton) {
+        if (isFormChanged) {
+            saveButton.disabled = false;
+            saveButton.style.opacity = '1';
+            saveButton.style.cursor = 'pointer';
+            saveButton.title = 'Сохранить изменения';
+            saveButton.innerHTML = '<span>💾</span> Сохранить изменения';
+        } else {
+            saveButton.disabled = true;
+            saveButton.style.opacity = '0.6';
+            saveButton.style.cursor = 'not-allowed';
+            saveButton.title = 'Нет изменений для сохранения';
+            saveButton.innerHTML = '<span>💾</span> Сохранить изменения';
+        }
+    }
+}
+
+function trackFormChanges() {
+    const form = document.querySelector('form[method="POST"]');
+    if (!form) return;
+
+    const formElements = form.querySelectorAll('input, select, textarea');
+
+    formElements.forEach(element => {
+        if (element.type === 'hidden' || element.type === 'submit' || element.type === 'button') {
+            return;
+        }
+
+        element.addEventListener('input', checkFormChanges);
+        element.addEventListener('change', checkFormChanges);
+        element.addEventListener('keyup', checkFormChanges);
+    });
+
+    initialFormData = getFormData();
+    updateSaveButtonState();
+}
+
+// ========== ФУНКЦИИ ДЛЯ ИНТЕРФЕЙСА (ВАШ СТАРЫЙ КОД) ==========
+
 function viewPhoto(url) {
     window.open(url, '_blank');
 }
@@ -320,21 +515,17 @@ function viewVideo(url) {
     window.open(url, '_blank');
 }
 
-// Основная функция управления интерфейсом
 function updateInterface() {
-    // Используем id полей формы Django
     const decision = document.querySelector('#id_decision').value;
     const conclusion = document.querySelector('#id_conclusion').value;
     const warrantySection = document.getElementById('warranty_repair_section');
     const paidRepairFields = document.getElementById('paid_repair_fields');
 
-    // 1. Управляем полями платного ремонта в диагностике
     if (paidRepairFields) {
         const showPaidFields = ['paid_repair', 'hydra_repair', 'demo_repair'].includes(decision);
         paidRepairFields.style.display = showPaidFields ? 'block' : 'none';
     }
 
-    // 2. Управляем блоком гарантийного ремонта (теперь и для платного ремонта)
     if (warrantySection) {
         const showWarrantySection = decision === 'warranty_repair' ||
                                    (conclusion === 'factory_defect' && decision === 'exchange') ||
@@ -349,11 +540,9 @@ function updateInterface() {
     }
 }
 
-// Функция для управления полями внутри блока гарантийного ремонта
 function updateWarrantyFields(decision, conclusion) {
     const isPaidRepair = ['paid_repair', 'hydra_repair', 'demo_repair'].includes(decision);
 
-    // Меняем заголовок
     const title = document.querySelector('#warranty_repair_section h3');
     if (title) {
         if (conclusion === 'factory_defect' && decision === 'exchange') {
@@ -373,35 +562,28 @@ function updateWarrantyFields(decision, conclusion) {
         }
     }
 
-    // Управляем полями оплаты (показываем только для платного ремонта)
     const paymentSection = document.getElementById('payment_section');
     if (paymentSection) {
         paymentSection.style.display = isPaidRepair ? 'block' : 'none';
     }
 
-    // Всегда показываем эти 3 поля
     document.getElementById('detected_problem_group').style.display = 'block';
     document.getElementById('additional_info_group').style.display = 'block';
     document.getElementById('internal_comment_group').style.display = 'block';
 
-    // Управляем специфичными полями
     if (conclusion === 'factory_defect' && decision === 'exchange') {
-        // Обмен: скрываем поля ремонта
         hideRepairFields();
         document.getElementById('refusal_reason_group').style.display = 'none';
     } else if (decision === 'return') {
-        // Возврат: показываем причину отказа, скрываем поля ремонта
         document.getElementById('refusal_reason_group').style.display = 'block';
         hideRepairFields();
     } else {
-        // Гарантийный ремонт И платный ремонт: показываем все поля ремонта
         document.getElementById('refusal_reason_group').style.display = 'none';
         showRepairFields();
         toggleRepairSubtypes();
     }
 }
 
-// Функция для расчета общей стоимости
 function calculateTotalCost() {
     const laborCost = parseFloat(document.querySelector('#id_labor_cost')?.value) || 0;
     const partsCost = parseFloat(document.querySelector('#id_parts_cost')?.value) || 0;
@@ -416,7 +598,6 @@ function calculateTotalCost() {
     }
 }
 
-// Вспомогательные функции
 function hideRepairFields() {
     document.getElementById('repair_details_group').style.display = 'none';
     document.getElementById('acoustics_repair_subtype').style.display = 'none';
@@ -444,13 +625,55 @@ function toggleRepairSubtypes() {
     }
 }
 
-// Инициализация
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Находим форму
+    const form = document.querySelector('form[method="POST"]');
+
+    if (form) {
+        originalForm = form;
+
+        // Начинаем отслеживать изменения
+        trackFormChanges();
+
+        // Перехватываем отправку формы
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!isFormChanged) {
+                alert('Нет изменений для сохранения');
+                return;
+            }
+
+            if (isSubmitting) return;
+
+            showConfirmationModal();
+        });
+    }
+
+    // Обработчики для модального окна
+    document.getElementById('confirmSaveBtn')?.addEventListener('click', confirmSave);
+    document.getElementById('cancelSaveBtn')?.addEventListener('click', cancelSave);
+
+    // Закрытие модального окна
+    document.getElementById('confirmationModal')?.addEventListener('click', function(e) {
+        if (e.target.id === 'confirmationModal') {
+            cancelSave();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            cancelSave();
+        }
+    });
+
+    // Обработчики для интерфейса
     const decisionSelect = document.querySelector('#id_decision');
     const conclusionSelect = document.querySelector('#id_conclusion');
     const repairTypeSelect = document.querySelector('#id_repair_type');
 
-    // Вешаем обработчики
     if (decisionSelect) decisionSelect.addEventListener('change', updateInterface);
     if (conclusionSelect) conclusionSelect.addEventListener('change', updateInterface);
     if (repairTypeSelect) repairTypeSelect.addEventListener('change', toggleRepairSubtypes);
@@ -464,7 +687,66 @@ document.addEventListener('DOMContentLoaded', function() {
     updateInterface();
     toggleRepairSubtypes();
 
-    console.log('Script loaded');
+    console.log('Script loaded - отслеживание изменений активировано');
 });
 </script>
+
+<style>
+/* Добавьте стили для модального окна */
+.modal {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для кнопок в модальном окне */
+#confirmSaveBtn:hover {
+    background: #45a049 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+#cancelSaveBtn:hover {
+    background: #e53935 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+/* Стили для disabled кнопки */
+.action-btn.btn-primary:disabled {
+    background-color: #cccccc !important;
+    border-color: #cccccc !important;
+    color: #666666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+.action-btn.btn-primary:disabled:hover {
+    background-color: #cccccc !important;
+    border-color: #cccccc !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+</style>
+
 {% endblock %}

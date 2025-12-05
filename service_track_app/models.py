@@ -236,12 +236,9 @@ class RepairRequest(models.Model):
     )
 
     ACT_STATUS_CHOICES = [
-        ('', 'Не выбрано'),
-        ('accepted', 'Товар принят диллером'),
-        ('waiting', 'Ожидает'),
-        ('sent', 'Отправлено в СЦ'),
-        ('closed', 'Закрыта'),
-        ('rejected', 'Отклонена'),
+        ('in_work', 'В работе'),
+        ('waiting_payment', 'Ожидает оплаты'),
+        ('completed', 'Завершено'),
     ]
 
     act_status = models.CharField(
