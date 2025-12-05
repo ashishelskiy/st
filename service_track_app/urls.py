@@ -22,6 +22,7 @@ urlpatterns = [
          views.accept_selected_requests,
          name='accept_selected_requests'),
     path('api/request/<int:request_id>/update/', views.update_request_field, name='update_request_field'),
+    path('request/<int:request_id>/act/docx/', views.generate_act_docx, name='generate_act_docx'),
 ]
 
 if settings.DEBUG:

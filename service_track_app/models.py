@@ -11,11 +11,8 @@ class CustomUser(AbstractUser):
         ('service_center', 'Сервисный центр'),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='dealer')
-
-    # def __str__(self):
-    #     return f"{self.username} ({self.get_role_display()})"
-    # если пользователь принадлежит компании
-    dealer_company = models.ForeignKey("DealerCompany", on_delete=models.SET_NULL, null=True, blank=True, related_name="users")
+    dealer_company = models.ForeignKey("DealerCompany", on_delete=models.SET_NULL, null=True, blank=True,
+                                       related_name="users")
 
     def __str__(self):
         if self.role == "dealer" and self.dealer_company:
@@ -29,7 +26,7 @@ class DealerCompany(models.Model):
     inn = models.CharField("ИНН", max_length=20, blank=True, null=True)
     full_name = models.CharField("Полное наименование", max_length=255, blank=True, null=True)
     document = models.CharField("Документ, удостоверяющий личность", max_length=255, blank=True, null=True)
-    relation_type = models.CharField("Тип отношений", max_length=50, blank=True, null=True)  # Покупатель / Поставщик
+    relation_type = models.CharField("Тип отношений", max_length=50, blank=True, null=True)
     region = models.CharField("Регион", max_length=100, blank=True, null=True)
     is_active = models.BooleanField("Активен", default=True)
 
@@ -44,16 +41,10 @@ class Package(models.Model):
         ('returned', 'Возвращен дилеру'),
         ('processing', 'В обработке у производителя'),
     )
-    created_at = models.DateTimeField(auto_now_add=True)  # дата и время создания пакета
+    created_at = models.DateTimeField(auto_now_add=True)
     dealer_company = models.ForeignKey("DealerCompany", on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey("CustomUser", on_delete=models.SET_NULL, null=True, blank=True)
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='sent',
-        verbose_name="Статус пакета"
-    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='sent', verbose_name="Статус пакета")
     returned_at = models.DateTimeField("Дата возврата", null=True, blank=True)
     return_reason = models.TextField("Причина возврата", blank=True, null=True)
 
@@ -62,7 +53,6 @@ class Package(models.Model):
 
     @property
     def request_count(self):
-        # 'requests' — это related_name из RepairRequest.package
         return self.requests.count()
 
 
@@ -87,7 +77,8 @@ class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name="Название модели", unique=True)
     brand = models.CharField(max_length=100, verbose_name="Бренд", blank=True, null=True)
     series = models.CharField(max_length=100, verbose_name="Серия", blank=True, null=True)
-    category = models.CharField(max_length=50, choices=PRODUCT_CATEGORIES, verbose_name="Категория", default='subwoofer')
+    category = models.CharField(max_length=50, choices=PRODUCT_CATEGORIES, verbose_name="Категория",
+                                default='subwoofer')
     size = models.CharField(max_length=50, verbose_name="Размер", blank=True, null=True)
     power_rms = models.CharField(max_length=50, verbose_name="Мощность RMS", blank=True, null=True)
     power_max = models.CharField(max_length=50, verbose_name="Мощность MAX", blank=True, null=True)
@@ -107,7 +98,6 @@ class Product(models.Model):
         return self.name
 
     def display_name(self):
-        """Красивое отображение для выпадающих списков"""
         parts = []
         if self.brand:
             parts.append(self.brand)
@@ -132,19 +122,16 @@ class RepairRequest(models.Model):
         "Статус заявки",
         max_length=20,
         choices=STATUS_CHOICES,
-        default='accepted_by_dealer'  # Это значение будет присвоено по умолчанию
+        default='accepted_by_dealer'
     )
 
     WARRANTY_CHOICES = [
         ('warranty', 'На гарантию'),
         ('paid_repair', 'На платный ремонт'),
         ('diagnostics', 'На диагностику/ремонт'),
-        # ('expired', 'Гарантия истекла'),
-        # ('unknown', 'Неизвестно'),
     ]
 
     serial_number = models.CharField("Серийный номер товара", max_length=50)
-    # model_name = models.CharField("Модель товара", max_length=100)
     product = models.ForeignKey(
         Product,
         on_delete=models.PROTECT,
@@ -158,19 +145,11 @@ class RepairRequest(models.Model):
         choices=WARRANTY_CHOICES
     )
     problem_description = models.TextField("Описание неисправности")
-
     customer_name = models.CharField("ФИО покупателя", max_length=150, blank=True, null=True)
-    # customer_phone = models.CharField("Телефон", max_length=30)
     customer_phone = PhoneNumberField("Телефон покупателя", blank=True, null=True)
     customer_email = models.EmailField("Email покупателя", blank=True, null=True)
-
-    # dealer_name = models.CharField("Название дилера", max_length=150)
-    # dealer_city = models.CharField("Город", max_length=100)
-
     additional_notes = models.TextField("Дополнительные примечания", blank=True, null=True)
     created_at = models.DateTimeField("Создана", auto_now_add=True)
-
-    # 🔑 Новая связь
     dealer_company = models.ForeignKey(
         "DealerCompany",
         on_delete=models.CASCADE,
@@ -178,7 +157,6 @@ class RepairRequest(models.Model):
         verbose_name="Компания дилера",
         null=True, blank=True
     )
-
     created_by = models.ForeignKey(
         "CustomUser",
         on_delete=models.SET_NULL,
@@ -188,6 +166,120 @@ class RepairRequest(models.Model):
     )
     sent_at = models.DateTimeField("Дата отправки", null=True, blank=True)
     package = models.ForeignKey(Package, on_delete=models.SET_NULL, null=True, blank=True, related_name="requests")
+
+    # ========== НАЧАЛО: ДОБАВЛЕННЫЕ ПОЛЯ ДЛЯ ДИАГНОСТИКИ ==========
+    diagnosis_date = models.DateField("Дата диагностики", null=True, blank=True)
+    completion_date = models.DateField("Дата завершения", null=True, blank=True)
+    service_employee = models.CharField("Сотрудник сервиса", max_length=200, blank=True)
+
+    CONCLUSION_CHOICES = [
+        ('', 'Не выбрано'),
+        ('factory_defect', 'Заводской брак'),
+        ('no_issue', 'Неисправность не выявлена'),
+        ('client_damage', 'Испорчен клиентом'),
+        ('warranty_expired', 'Истечение срока гарантии'),
+    ]
+
+    conclusion = models.CharField(
+        "Заключение",
+        max_length=50,
+        choices=CONCLUSION_CHOICES,
+        blank=True
+    )
+
+    DECISION_CHOICES = [
+        ('', 'Не выбрано'),
+        ('warranty_repair', 'Гарантийный ремонт'),
+        ('exchange', 'Обмен на новый'),
+        ('return', 'Возврат клиенту без ремонта'),
+        ('paid_repair', 'Ремонт за счет клиента'),
+        ('hydra_repair', 'Ремонт за счет клиента HYDRA'),
+        ('demo_repair', 'Ремонт по договору Demo car'),
+    ]
+
+    decision = models.CharField(
+        "Принятое решение",
+        max_length=50,
+        choices=DECISION_CHOICES,
+        blank=True
+    )
+
+    malfunction_formulation = models.TextField("Формулировка неисправности", blank=True)
+
+    PRICE_TYPE_CHOICES = [
+        ('', 'Не выбрано'),
+        ('retail', 'Розничная'),
+        ('dealer', 'Дилерская'),
+    ]
+
+    price_type = models.CharField(
+        "Тип цен",
+        max_length=20,
+        choices=PRICE_TYPE_CHOICES,
+        blank=True
+    )
+
+    ACT_STATUS_CHOICES = [
+        ('', 'Не выбрано'),
+        ('accepted', 'Товар принят диллером'),
+        ('waiting', 'Ожидает'),
+        ('sent', 'Отправлено в СЦ'),
+        ('closed', 'Закрыта'),
+        ('rejected', 'Отклонена'),
+    ]
+
+    act_status = models.CharField(
+        "Статус акта",
+        max_length=50,
+        choices=ACT_STATUS_CHOICES,
+        blank=True
+    )
+
+    REFUSAL_REASON_CHOICES = [
+        ('', 'Не выбрано'),
+        ('client_refused', 'От платного ремонта отказался'),
+        ('no_spare_parts', 'Платный ремонт невозможен в связи с отсутствием запасных частей'),
+    ]
+
+    refusal_reason = models.CharField(
+        "Причина отказа от ремонта",
+        max_length=100,
+        choices=REFUSAL_REASON_CHOICES,
+        blank=True
+    )
+
+    detected_problem = models.TextField("Выявленная неисправность", blank=True)
+    repair_date = models.DateField("Дата ремонта", null=True, blank=True)
+
+    REPAIR_TYPE_CHOICES = [
+        ('', 'Не выбрано'),
+        ('acoustics', 'Акустика'),
+        ('amplifier', 'Усилитель'),
+    ]
+
+    repair_type = models.CharField(
+        "Вид ремонта",
+        max_length=50,
+        choices=REPAIR_TYPE_CHOICES,
+        blank=True
+    )
+
+    acoustics_repair_subtype = models.CharField("Тип ремонта акустики", max_length=200, blank=True)
+    amplifier_repair_subtype = models.CharField("Тип ремонта усилителя", max_length=200, blank=True)
+    repair_performed = models.TextField("Произведенный ремонт", blank=True)
+    additional_info = models.TextField("Доп информация", blank=True)
+    internal_comment = models.TextField("Внутренний комментарий", blank=True)
+
+    # Поля оплаты
+    payment_link = models.URLField("Ссылка на оплату", blank=True)
+    labor_cost = models.DecimalField("Стоимость работ", max_digits=10, decimal_places=2, null=True, blank=True)
+    parts_cost = models.DecimalField("Запчасти", max_digits=10, decimal_places=2, null=True, blank=True)
+    total_cost = models.DecimalField("Общая стоимость", max_digits=10, decimal_places=2, null=True, blank=True)
+    parts_discount = models.IntegerField("% скидки на запчасти", null=True, blank=True)
+    paid_by_client = models.DecimalField("Оплачено клиентом", max_digits=10, decimal_places=2, null=True, blank=True)
+    payment_date = models.DateField("Дата оплаты", null=True, blank=True)
+
+    # ========== КОНЕЦ: ДОБАВЛЕННЫЕ ПОЛЯ ДЛЯ ДИАГНОСТИКИ ==========
 
     def __str__(self):
         return f"Заявка #{self.id} — {self.serial_number}"
@@ -233,10 +325,3 @@ class RequestHistory(models.Model):
 
     def __str__(self):
         return f"История заявки #{self.repair_request.id} — {self.new_status} ({self.changed_at})"
-
-# class SendPackage(models.Model):
-#     sent_at = models.DateTimeField(auto_now_add=True)
-#     comment = models.CharField(max_length=255, blank=True, null=True)
-#
-#     def __str__(self):
-#         return f"Пакет {self.id} от {self.sent_at.strftime('%d.%m.%Y %H:%M')}"

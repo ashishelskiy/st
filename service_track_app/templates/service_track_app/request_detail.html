@@ -14,15 +14,17 @@
             {% endif %}
         {% endfor %}
     </div>
-    <div class="request-details-actions">
-        <button class="action-btn btn-secondary" type="button"
-            onclick="window.location.href='{{ back_url }}'">
-            ← К {{ back_title }}
-        </button>
-        <button class="action-btn btn-primary" type="submit">💾 Сохранить</button>
-    </div>
     <form method="POST" action="{% url 'request_detail' repair_request.id %}">
         {% csrf_token %}
+
+        <div class="request-details-actions">
+            <button class="action-btn btn-secondary" type="button"
+                onclick="window.location.href='{{ back_url }}'">
+                ← К {{ back_title }}
+            </button>
+            <button class="action-btn btn-primary" type="submit">💾 Сохранить</button>
+        </div>
+
         <div class="request-detail-header">
             <div class="request-detail-title">Детали заявки #{{ repair_request.id }} (редактирование)</div>
         </div>
@@ -115,220 +117,200 @@
                     </div>
                 </div>
             </div>
-<!-- Блок диагностики -->
-<div class="details-group" style="grid-column: 1 / -1; background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Диагностика</h3>
 
-    <div class="details-row">
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-            <label class="details-label">Дата диагностики</label>
-            <input type="date" name="diagnosis_date" class="details-input">
-        </div>
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-            <label class="details-label">Дата завершения</label>
-            <input type="date" name="completion_date" class="details-input">
-        </div>
-    </div>
+            <!-- Блок диагностики -->
+            <div class="details-group" style="grid-column: 1 / -1; background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Диагностика</h3>
 
-    <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-        <label class="details-label">Сотрудник сервиса</label>
-        <input type="text" name="service_employee" class="details-input" placeholder="Введите ФИО сотрудника">
-    </div>
+                <div class="details-row">
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                        <label for="id_diagnosis_date" class="details-label">Дата диагностики</label>
+                        {{ form.diagnosis_date }}
+                    </div>
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                        <label for="id_completion_date" class="details-label">Дата завершения</label>
+                        {{ form.completion_date }}
+                    </div>
+                </div>
 
-    <div class="details-row">
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-            <label class="details-label">Заключение</label>
-            <select name="conclusion" class="details-input">
-                <option value="">Выберите заключение</option>
-                <option value="factory_defect">Заводской брак</option>
-                <option value="no_issue">Неисправность не выявлена</option>
-                <option value="client_damage">Испорчен клиентом</option>
-                <option value="warranty_expired">Истечение срока гарантии</option>
-            </select>
-        </div>
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-            <label class="details-label">Принятое решение</label>
-            <select name="decision" class="details-input">
-                <option value="">Выберите решение</option>
-                <option value="warranty_repair">Гарантийный ремонт</option>
-                <option value="exchange">Обмен на новый</option>
-                <option value="return">Возврат клиенту без ремонта</option>
-                <option value="paid_repair">Ремонт за счет клиента</option>
-                <option value="hydra_repair">Ремонт за счет клиента HYDRA</option>
-                <option value="demo_repair">Ремонт по договору Demo car</option>
-            </select>
-        </div>
-    </div>
+                <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                    <label for="id_service_employee" class="details-label">Сотрудник сервиса</label>
+                    {{ form.service_employee }}
+                </div>
 
-    <div id="paid_repair_fields" style="display: none;">
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-            <label class="details-label">Формулировка неисправности</label>
-            <textarea name="malfunction_formulation" class="details-textarea" rows="3" placeholder="Подробное описание неисправности для клиента"></textarea>
-        </div>
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-            <label class="details-label">Тип цен</label>
-            <select name="price_type" class="details-input">
-                <option value="">Выберите тип цен</option>
-                <option value="retail">Розничная</option>
-                <option value="dealer">Дилерская</option>
-            </select>
-        </div>
-    </div>
+                <div class="details-row">
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                        <label for="id_conclusion" class="details-label">Заключение</label>
+                        {{ form.conclusion }}
+                    </div>
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                        <label for="id_decision" class="details-label">Принятое решение</label>
+                        {{ form.decision }}
+                    </div>
+                </div>
 
-    <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-        <label class="details-label">Статус акта</label>
-        <select name="act_status" class="details-input">
-            <option value="">Выберите статус</option>
-            <option value="accepted">Товар принят диллером</option>
-            <option value="waiting">Ожидает</option>
-            <option value="sent">Отправлено в СЦ</option>
-            <option value="closed">Закрыта</option>
-            <option value="rejected">Отклонена</option>
-        </select>
-    </div>
-</div>
+                <div id="paid_repair_fields" style="display: none;">
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                        <label for="id_malfunction_formulation" class="details-label">Формулировка неисправности</label>
+                        {{ form.malfunction_formulation }}
+                    </div>
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                        <label for="id_price_type" class="details-label">Тип цен</label>
+                        {{ form.price_type }}
+                    </div>
+                </div>
+
+                <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                    <label for="id_act_status" class="details-label">Статус акта</label>
+                    {{ form.act_status }}
+                </div>
+
+                {% if repair_request.conclusion and repair_request.decision %}
+                    <button type="button"
+                            onclick="window.open('{% url 'generate_act_docx' repair_request.id %}', '_blank')"
+                            title="Скачать акт (Word)"
+                            style="margin-top: 20px; padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 18px;">📄</span>
+                        <span>Скачать акт (Word)</span>
+                    </button>
+                {% else %}
+                    <div style="margin-top: 20px; padding: 12px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+                        ⚠️ Для скачивания акта заполните "Заключение" и "Принятое решение" и нажмите "Сохранить"
+                    </div>
+                {% endif %}
+            </div>
 
             <!-- Гарантийный ремонт -->
-<div id="warranty_repair_section" class="details-group" style="grid-column: 1 / -1; background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none;">
-    <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Гарантийный ремонт</h3>
+            <div id="warranty_repair_section" class="details-group" style="grid-column: 1 / -1; background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none;">
+                <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Гарантийный ремонт</h3>
 
-    <div id="refusal_reason_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1; display: none;">
-        <label class="details-label">Причина отказа от ремонта</label>
-        <select name="refusal_reason" class="details-input">
-            <option value="">Выберите причину</option>
-            <option value="client_refused">От платного ремонта отказался</option>
-            <option value="no_spare_parts">Платный ремонт невозможен в связи с отсутствием запасных частей</option>
-        </select>
-    </div>
+                <div id="refusal_reason_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1; display: none;">
+                    <label for="id_refusal_reason" class="details-label">Причина отказа от ремонта</label>
+                    {{ form.refusal_reason }}
+                </div>
 
-    <div id="detected_problem_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-        <label class="details-label">Выявленная неисправность</label>
-        <textarea name="detected_problem" class="details-textarea" rows="3" placeholder="Опишите выявленную неисправность"></textarea>
-    </div>
+                <div id="detected_problem_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                    <label for="id_detected_problem" class="details-label">Выявленная неисправность</label>
+                    {{ form.detected_problem }}
+                </div>
 
-    <div id="repair_details_group" class="details-row">
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-            <label class="details-label">Дата ремонта</label>
-            <input type="date" name="repair_date" class="details-input">
-        </div>
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-            <label class="details-label">Вид ремонта</label>
-            <select name="repair_type" id="repair_type" class="details-input">
-                <option value="">Выберите вид ремонта</option>
-                <option value="acoustics">Акустика</option>
-                <option value="amplifier">Усилитель</option>
-            </select>
-        </div>
-        <div id="acoustics_repair_subtype" style="display: none;">
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">Тип ремонта акустики</label>
-                <input list="acoustics_options" name="acoustics_repair_subtype" class="details-input"
-                       placeholder="Начните вводить тип ремонта...">
-                <datalist id="acoustics_options">
-                    <option value="Замена ВЧ динамика">
-                    <option value="Замена динамика">
-                    <option value="Замена динамиков">
-                    <option value="Замена звуковой катушки">
-                    <option value="Замена корзины">
-                    <option value="Замена корзины и подвижной части динамика">
-                    <option value="Замена подвижной части динамика">
-                    <option value="Замена подвижных частей динамиков">
-                    <option value="Замена пылезащитного колпака">
-                    <option value="Замена терминала">
-                    <option value="Проклеивание">
-                    <option value="Проклеивание пакета центрирующих шайб">
-                    <option value="Проклеивание подвеса">
-                    <option value="Проклеивание пылезащитного колпака">
-                    <option value="Пропайка контактов">
-                    <option value="Устранение дефекта без замены подвижной части">
-                    <option value="Устранение обрыва звуковой катушки">
-                    <option value="Центровка подвижной части">
-                    <option value="Чистка зазора магнитной системы динамика">
-                </datalist>
+                <div id="repair_details_group" class="details-row">
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                        <label for="id_repair_date" class="details-label">Дата ремонта</label>
+                        {{ form.repair_date }}
+                    </div>
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                        <label for="id_repair_type" class="details-label">Вид ремонта</label>
+                        {{ form.repair_type }}
+                    </div>
+
+                    <div id="acoustics_repair_subtype" style="display: none;">
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_acoustics_repair_subtype" class="details-label">Тип ремонта акустики</label>
+                            {{ form.acoustics_repair_subtype }}
+                            <datalist id="acoustics_options">
+                                <option value="Замена ВЧ динамика">
+                                <option value="Замена динамика">
+                                <option value="Замена динамиков">
+                                <option value="Замена звуковой катушки">
+                                <option value="Замена корзины">
+                                <option value="Замена корзины и подвижной части динамика">
+                                <option value="Замена подвижной части динамика">
+                                <option value="Замена подвижных частей динамиков">
+                                <option value="Замена пылезащитного колпака">
+                                <option value="Замена терминала">
+                                <option value="Проклеивание">
+                                <option value="Проклеивание пакета центрирующих шайб">
+                                <option value="Проклеивание подвеса">
+                                <option value="Проклеивание пылезащитного колпака">
+                                <option value="Пропайка контактов">
+                                <option value="Устранение дефекта без замены подвижной части">
+                                <option value="Устранение обрыва звуковой катушки">
+                                <option value="Центровка подвижной части">
+                                <option value="Чистка зазора магнитной системы динамика">
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <div id="amplifier_repair_subtype" style="display: none;">
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_amplifier_repair_subtype" class="details-label">Тип ремонта усилителя</label>
+                            {{ form.amplifier_repair_subtype }}
+                            <datalist id="amplifier_options">
+                                <option value="Замена вентилятора">
+                                <option value="Замена переключателей">
+                                <option value="Замена регулятора громкости">
+                                <option value="Замена толкателя кнопки">
+                                <option value="Замена тюльпанов ГСА">
+                                <option value="Компонентный ремонт">
+                                <option value="Питание ОУ">
+                                <option value="Пропайка ГСА">
+                                <option value="Ремонт выходного каскада">
+                                <option value="Ремонт БП">
+                                <option value="Ремонт БП выходного каскада">
+                                <option value="Ремонт ОУ">
+                                <option value="Ремонт ПУ">
+                                <option value="Фильтр выходного каскада">
+                                <option value="Фильтр питания вентилятора">
+                            </datalist>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="repair_performed_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                    <label for="id_repair_performed" class="details-label">Произведенный ремонт</label>
+                    {{ form.repair_performed }}
+                </div>
+
+                <div id="additional_info_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                    <label for="id_additional_info" class="details-label">Доп информация</label>
+                    {{ form.additional_info }}
+                </div>
+
+                <div id="internal_comment_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                    <label for="id_internal_comment" class="details-label">Внутренний комментарий</label>
+                    {{ form.internal_comment }}
+                </div>
+
+                <div id="payment_section" style="display: none;">
+                    <!-- Ссылка на оплату -->
+                    <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
+                        <label for="id_payment_link" class="details-label">Ссылка на оплату</label>
+                        {{ form.payment_link }}
+                    </div>
+
+                    <!-- Расчет стоимости -->
+                    <div class="details-row">
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_labor_cost" class="details-label">Стоимость работ</label>
+                            {{ form.labor_cost }}
+                        </div>
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_parts_cost" class="details-label">Запчасти</label>
+                            {{ form.parts_cost }}
+                        </div>
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_total_cost" class="details-label">Общая стоимость</label>
+                            {{ form.total_cost }}
+                        </div>
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_parts_discount" class="details-label">% скидки на запчасти</label>
+                            {{ form.parts_discount }}
+                        </div>
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_paid_by_client" class="details-label">Оплачено клиентом</label>
+                            {{ form.paid_by_client }}
+                        </div>
+                        <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
+                            <label for="id_payment_date" class="details-label">Дата оплаты</label>
+                            {{ form.payment_date }}
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div id="amplifier_repair_subtype" style="display: none;">
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">Тип ремонта усилителя</label>
-                <input list="amplifier_options" name="amplifier_repair_subtype" class="details-input"
-                       placeholder="Начните вводить тип ремонта...">
-                <datalist id="amplifier_options">
-                    <option value="Замена вентилятора">
-                    <option value="Замена переключателей">
-                    <option value="Замена регулятора громкости">
-                    <option value="Замена толкателя кнопки">
-                    <option value="Замена тюльпанов ГСА">
-                    <option value="Компонентный ремонт">
-                    <option value="Питание ОУ">
-                    <option value="Пропайка ГСА">
-                    <option value="Ремонт выходного каскада">
-                    <option value="Ремонт БП">
-                    <option value="Ремонт БП выходного каскада">
-                    <option value="Ремонт ОУ">
-                    <option value="Ремонт ПУ">
-                    <option value="Фильтр выходного каскада">
-                    <option value="Фильтр питания вентилятора">
-                </datalist>
-            </div>
-        </div>
-    </div>
-
-    <div id="repair_performed_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-        <label class="details-label">Произведенный ремонт</label>
-        <textarea name="repair_performed" class="details-textarea" rows="3" placeholder="Опишите произведенные работы"></textarea>
-    </div>
-
-    <div id="additional_info_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-        <label class="details-label">Доп информация</label>
-        <textarea name="additional_info" class="details-textarea" rows="2" placeholder="Дополнительная информация"></textarea>
-    </div>
-
-    <div id="internal_comment_group" class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-        <label class="details-label">Внутренний комментарий</label>
-        <textarea name="internal_comment" class="details-textarea" rows="2" placeholder="Внутренние комментарии для сотрудников"></textarea>
-    </div>
-
-    <div id="payment_section" style="display: none;">
-        <!-- Ссылка на оплату -->
-        <div class="details-group" style="background: none; padding: 0; box-shadow: none; grid-column: 1 / -1;">
-            <label class="details-label">Ссылка на оплату</label>
-            <input type="url" name="payment_link" class="details-input" placeholder="https://...">
-        </div>
-
-        <!-- Расчет стоимости -->
-        <div class="details-row">
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">Стоимость работ</label>
-                <input type="number" name="labor_cost" class="details-input" placeholder="0.00" step="0.01">
-            </div>
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">Запчасти</label>
-                <input type="number" name="parts_cost" class="details-input" placeholder="0.00" step="0.01">
-            </div>
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">Общая стоимость</label>
-                <input type="number" name="total_cost" class="details-input" placeholder="0.00" step="0.01" readonly>
-            </div>
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">% скидки на запчасти</label>
-                <input type="number" name="parts_discount" class="details-input" placeholder="0" min="0" max="100">
-            </div>
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">Оплачено клиентом</label>
-                <input type="number" name="paid_by_client" class="details-input" placeholder="0.00" step="0.01">
-            </div>
-            <div class="details-group" style="background: none; padding: 0; box-shadow: none;">
-                <label class="details-label">Дата оплаты</label>
-                <input type="date" name="payment_date" class="details-input">
-            </div>
-        </div>
-    </div>
-</div>
-
         </div>
     </form>
 </div>
-
 <script>
 function viewPhoto(url) {
     window.open(url, '_blank');
@@ -340,8 +322,9 @@ function viewVideo(url) {
 
 // Основная функция управления интерфейсом
 function updateInterface() {
-    const decision = document.querySelector('select[name="decision"]').value;
-    const conclusion = document.querySelector('select[name="conclusion"]').value;
+    // Используем id полей формы Django
+    const decision = document.querySelector('#id_decision').value;
+    const conclusion = document.querySelector('#id_conclusion').value;
     const warrantySection = document.getElementById('warranty_repair_section');
     const paidRepairFields = document.getElementById('paid_repair_fields');
 
@@ -356,7 +339,7 @@ function updateInterface() {
         const showWarrantySection = decision === 'warranty_repair' ||
                                    (conclusion === 'factory_defect' && decision === 'exchange') ||
                                    (decision === 'return') ||
-                                   ['paid_repair', 'hydra_repair', 'demo_repair'].includes(decision); // ДОБАВИЛИ ПЛАТНЫЙ РЕМОНТ
+                                   ['paid_repair', 'hydra_repair', 'demo_repair'].includes(decision);
 
         warrantySection.style.display = showWarrantySection ? 'block' : 'none';
 
@@ -368,7 +351,7 @@ function updateInterface() {
 
 // Функция для управления полями внутри блока гарантийного ремонта
 function updateWarrantyFields(decision, conclusion) {
-    const isPaidRepair = ['paid_repair', 'hydra_repair', 'demo_repair'].includes(decision); // ДОБАВИЛИ
+    const isPaidRepair = ['paid_repair', 'hydra_repair', 'demo_repair'].includes(decision);
 
     // Меняем заголовок
     const title = document.querySelector('#warranty_repair_section h3');
@@ -377,7 +360,7 @@ function updateWarrantyFields(decision, conclusion) {
             title.textContent = 'Обмен товара';
         } else if (decision === 'return') {
             title.textContent = 'Возврат клиенту без ремонта';
-        } else if (isPaidRepair) { // ДОБАВИЛИ ДЛЯ ПЛАТНОГО РЕМОНТА
+        } else if (isPaidRepair) {
             if (decision === 'hydra_repair') {
                 title.textContent = 'Ремонт за счет клиента HYDRA';
             } else if (decision === 'demo_repair') {
@@ -390,7 +373,7 @@ function updateWarrantyFields(decision, conclusion) {
         }
     }
 
-    // Управляем полями оплаты (показываем только для платного ремонта) - ДОБАВИЛИ
+    // Управляем полями оплаты (показываем только для платного ремонта)
     const paymentSection = document.getElementById('payment_section');
     if (paymentSection) {
         paymentSection.style.display = isPaidRepair ? 'block' : 'none';
@@ -418,16 +401,16 @@ function updateWarrantyFields(decision, conclusion) {
     }
 }
 
-// Функция для расчета общей стоимости - ДОБАВИЛИ НОВУЮ ФУНКЦИЮ
+// Функция для расчета общей стоимости
 function calculateTotalCost() {
-    const laborCost = parseFloat(document.querySelector('input[name="labor_cost"]')?.value) || 0;
-    const partsCost = parseFloat(document.querySelector('input[name="parts_cost"]')?.value) || 0;
-    const discount = parseFloat(document.querySelector('input[name="parts_discount"]')?.value) || 0;
+    const laborCost = parseFloat(document.querySelector('#id_labor_cost')?.value) || 0;
+    const partsCost = parseFloat(document.querySelector('#id_parts_cost')?.value) || 0;
+    const discount = parseFloat(document.querySelector('#id_parts_discount')?.value) || 0;
 
     const discountedPartsCost = partsCost * (1 - discount / 100);
     const totalCost = laborCost + discountedPartsCost;
 
-    const totalCostInput = document.querySelector('input[name="total_cost"]');
+    const totalCostInput = document.querySelector('#id_total_cost');
     if (totalCostInput) {
         totalCostInput.value = totalCost.toFixed(2);
     }
@@ -447,7 +430,7 @@ function showRepairFields() {
 }
 
 function toggleRepairSubtypes() {
-    const repairType = document.getElementById('repair_type').value;
+    const repairType = document.querySelector('#id_repair_type').value;
     const acousticsSubtype = document.getElementById('acoustics_repair_subtype');
     const amplifierSubtype = document.getElementById('amplifier_repair_subtype');
 
@@ -463,25 +446,25 @@ function toggleRepairSubtypes() {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', function() {
-    const decisionSelect = document.querySelector('select[name="decision"]');
-    const conclusionSelect = document.querySelector('select[name="conclusion"]');
-    const repairTypeSelect = document.getElementById('repair_type');
+    const decisionSelect = document.querySelector('#id_decision');
+    const conclusionSelect = document.querySelector('#id_conclusion');
+    const repairTypeSelect = document.querySelector('#id_repair_type');
 
     // Вешаем обработчики
     if (decisionSelect) decisionSelect.addEventListener('change', updateInterface);
     if (conclusionSelect) conclusionSelect.addEventListener('change', updateInterface);
     if (repairTypeSelect) repairTypeSelect.addEventListener('change', toggleRepairSubtypes);
 
-    // ДОБАВИЛИ обработчики для расчета стоимости
-    document.querySelector('input[name="labor_cost"]')?.addEventListener('input', calculateTotalCost);
-    document.querySelector('input[name="parts_cost"]')?.addEventListener('input', calculateTotalCost);
-    document.querySelector('input[name="parts_discount"]')?.addEventListener('input', calculateTotalCost);
+    // Обработчики для расчета стоимости
+    document.querySelector('#id_labor_cost')?.addEventListener('input', calculateTotalCost);
+    document.querySelector('#id_parts_cost')?.addEventListener('input', calculateTotalCost);
+    document.querySelector('#id_parts_discount')?.addEventListener('input', calculateTotalCost);
 
     // Первоначальная настройка
     updateInterface();
     toggleRepairSubtypes();
-});
 
-console.log('Script loaded');
+    console.log('Script loaded');
+});
 </script>
 {% endblock %}

@@ -13,6 +13,11 @@ from django.urls import reverse
 from django.db.models import F, Count
 from collections import defaultdict
 
+from docxtpl import DocxTemplate
+from django.http import HttpResponse
+import os
+from io import BytesIO
+
 
 def user_login(request):
     if request.method == 'POST':
@@ -509,6 +514,111 @@ def request_detail(request, request_id):
     })
 
 
+# def request_detail(request, request_id):
+#     repair_request = get_object_or_404(RepairRequest, id=request_id)
+#     user_role = request.user.role
+#
+#     print("=== repair_request.package ===")
+#     print(repair_request.package)
+#     print(repair_request.package.id)
+#     print(repair_request.package_id)
+#
+#     # УПРОЩЕННАЯ ЛОГИКА НАВИГАЦИИ
+#     if user_role == 'dealer':
+#         back_url = reverse('sent_requests')
+#         back_title = "отправленным заявкам"
+#         breadcrumbs = [
+#             {'title': 'Отправленные', 'url': back_url},
+#             {'title': f'Заявка #{repair_request.id}', 'url': ''}
+#         ]
+#     elif user_role == 'service_center':
+#         back_url = reverse('received_requests')
+#         back_title = "поступившим заявкам"
+#         breadcrumbs = [
+#             {'title': 'Поступившие в СЦ', 'url': back_url},
+#             {'title': f'Заявка #{repair_request.id}', 'url': ''}
+#         ]
+#
+#     # ОСТАЛЬНОЙ КОД С ОТЛАДКОЙ
+#     if request.method == 'POST':
+#         print("=" * 50)
+#         print("🚀 ПОЛУЧЕН POST ЗАПРОС")
+#         print(f"Пользователь: {request.user}")
+#         print(f"ID заявки: {request_id}")
+#
+#         # Выведи все POST данные
+#         print("📦 POST данные:")
+#         for key, value in request.POST.items():
+#             print(f"  {key}: {value}")
+#
+#         form = RepairRequestEditForm(request.POST, instance=repair_request)
+#
+#         if form.is_valid():
+#             print("✅ ФОРМА ВАЛИДНА")
+#             print(f"Очищенные данные заключения: {form.cleaned_data.get('conclusion')}")
+#             print(f"Очищенные данные решения: {form.cleaned_data.get('decision')}")
+#
+#             previous_status = RepairRequest.objects.get(id=repair_request.id).status
+#             print(f"Предыдущий статус: {previous_status}")
+#
+#             updated_request = form.save(commit=False)
+#             print(f"Новые значения перед сохранением:")
+#             print(f"  conclusion: {updated_request.conclusion}")
+#             print(f"  decision: {updated_request.decision}")
+#             print(f"  diagnosis_date: {updated_request.diagnosis_date}")
+#
+#             updated_request.save()  # сохраняем изменения
+#             print("💾 ДАННЫЕ СОХРАНЕНЫ В БД")
+#
+#             # создаём запись в истории
+#             RequestHistory.objects.create(
+#                 repair_request=updated_request,
+#                 changed_by=request.user,
+#                 old_status=previous_status,
+#                 new_status=updated_request.status,
+#                 comment=updated_request.additional_notes
+#             )
+#             print("📝 ЗАПИСЬ В ИСТОРИИ СОЗДАНА")
+#
+#             # Проверим сохраненные данные
+#             saved_request = RepairRequest.objects.get(id=request_id)
+#             print("🔍 ПРОВЕРКА СОХРАНЕННЫХ ДАННЫХ:")
+#             print(f"  conclusion в БД: {saved_request.conclusion}")
+#             print(f"  decision в БД: {saved_request.decision}")
+#
+#             return redirect('request_detail', request_id=repair_request.id)
+#         else:
+#             print("❌ ОШИБКИ ФОРМЫ:")
+#             for field, errors in form.errors.items():
+#                 print(f"  {field}: {errors}")
+#             print("=" * 50)
+#     else:
+#         print("📄 GET ЗАПРОС - создаем форму")
+#         form = RepairRequestEditForm(instance=repair_request)
+#
+#         # Выведи текущие значения из БД
+#         print("📊 ТЕКУЩИЕ ДАННЫЕ ИЗ БАЗЫ:")
+#         print(f"  conclusion: {repair_request.conclusion}")
+#         print(f"  decision: {repair_request.decision}")
+#         print(f"  diagnosis_date: {repair_request.diagnosis_date}")
+#
+#     # Получаем все фото для этой заявки
+#     photos = repair_request.photos.all()
+#     videos = repair_request.videos.all()
+#
+#     print("=" * 50)
+#
+#     return render(request, 'service_track_app/request_detail.html', {
+#         'form': form,
+#         'repair_request': repair_request,
+#         'photos': photos,
+#         'videos': videos,
+#         'back_url': back_url,
+#         'back_title': back_title,
+#         'breadcrumbs': breadcrumbs
+#     })
+
+
 def update_request_status(request, request_id):
     print('1'*20)
     if request.method == "POST":
@@ -694,3 +804,94 @@ def update_request_field(request, request_id):
             'success': False,
             'error': str(e)
         }, status=500)
+
+
+def generate_act_docx(request, request_id):
+    """Генерация акта в формате DOCX из шаблона"""
+    from .models import RepairRequest
+    from docxtpl import DocxTemplate
+    from django.http import HttpResponse
+    from io import BytesIO
+    import os
+
+    repair_request = get_object_or_404(RepairRequest, id=request_id)
+
+    # Подготовка данных для вашего шаблона
+    context = {
+        # Основная информация
+        'act_number': f"{repair_request.id}/{timezone.now().strftime('%m/%y')}",
+        'act_date': timezone.now().strftime('%d.%m.%Y'),
+        'product_name': str(repair_request.product),
+        'serial_number': repair_request.serial_number,
+        'received_date': repair_request.created_at.strftime('%d.%m.%Y'),
+        'customer_name': repair_request.customer_name or "Неизвестный клиент",
+
+        # Информация о диагностике
+        'diagnosis_date': repair_request.diagnosis_date.strftime(
+            '%d.%m.%Y') if repair_request.diagnosis_date else "не указана",
+        'completion_date': repair_request.completion_date.strftime(
+            '%d.%m.%Y') if repair_request.completion_date else "не указана",
+        'service_employee': repair_request.service_employee or "не указан",
+
+        # Заключение и решение
+        'conclusion': repair_request.get_conclusion_display() if repair_request.conclusion else "не указано",
+        'decision': repair_request.get_decision_display() if repair_request.decision else "не указано",
+
+        # Детали неисправности
+        'problem_description': repair_request.problem_description or "не указано",
+        'detected_problem': repair_request.detected_problem or "не указано",
+        'malfunction_formulation': repair_request.malfunction_formulation or "",
+
+        # Информация о ремонте
+        'repair_date': repair_request.repair_date.strftime('%d.%m.%Y') if repair_request.repair_date else "не указана",
+        'repair_type': repair_request.get_repair_type_display() if repair_request.repair_type else "не указан",
+        'repair_performed': repair_request.repair_performed or "не указаны",
+
+        # Дополнительная информация
+        'additional_info': repair_request.additional_info or "",
+        'internal_comment': repair_request.internal_comment or "",
+
+        # Информация об оплате
+        'labor_cost': f"{repair_request.labor_cost:.2f}" if repair_request.labor_cost else "0.00",
+        'parts_cost': f"{repair_request.parts_cost:.2f}" if repair_request.parts_cost else "0.00",
+        'total_cost': f"{repair_request.total_cost:.2f}" if repair_request.total_cost else "0.00",
+        'parts_discount': f"{repair_request.parts_discount}%" if repair_request.parts_discount else "0%",
+        'paid_by_client': f"{repair_request.paid_by_client:.2f}" if repair_request.paid_by_client else "0.00",
+        'payment_date': repair_request.payment_date.strftime(
+            '%d.%m.%Y') if repair_request.payment_date else "не оплачено",
+
+        # Статусы
+        'warranty_status': repair_request.get_warranty_status_display(),
+        'act_status': repair_request.get_act_status_display() if repair_request.act_status else "не указан",
+        'price_type': repair_request.get_price_type_display() if repair_request.price_type else "не указан",
+    }
+
+    # Путь к вашему шаблону
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(current_dir, 'templates', 'word', 'act_template.docx')
+
+    print(f"📄 Использую шаблон: {template_path}")
+
+    if not os.path.exists(template_path):
+        return HttpResponse(f"Шаблон не найден: {template_path}", status=404)
+
+    # Загружаем и заполняем ваш шаблон
+    doc = DocxTemplate(template_path)
+    doc.render(context)
+
+    # Сохраняем в память
+    byte_io = BytesIO()
+    doc.save(byte_io)
+    byte_io.seek(0)
+
+    # Отправляем пользователю
+    response = HttpResponse(
+        byte_io.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    response['Content-Disposition'] = f'attachment; filename="Акт_№{repair_request.id}.docx"'
+    response['X-Download-Options'] = 'noopen'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+
+    return response
