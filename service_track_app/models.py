@@ -170,7 +170,23 @@ class RepairRequest(models.Model):
     # ========== НАЧАЛО: ДОБАВЛЕННЫЕ ПОЛЯ ДЛЯ ДИАГНОСТИКИ ==========
     diagnosis_date = models.DateField("Дата диагностики", null=True, blank=True)
     completion_date = models.DateField("Дата завершения", null=True, blank=True)
-    service_employee = models.CharField("Сотрудник сервиса", max_length=200, blank=True)
+    SERVICE_EMPLOYEE_CHOICES = [
+        ('', 'Не выбрано'),
+        ('Головин Д.О.', 'Головин Д.О.'),
+        ('Гуськов В.Г.', 'Гуськов В.Г.'),
+        ('Колтырин В.С.', 'Колтырин В.С.'),
+        ('Быковский П.В.', 'Быковский П.В.'),
+        ('(Студент 1)', '(Студент 1)'),
+        ('(Студент 2)', '(Студент 2)'),
+    ]
+
+    service_employee = models.CharField(
+        "Сотрудник сервиса",
+        max_length=200,
+        choices=SERVICE_EMPLOYEE_CHOICES,
+        blank=True
+    )
+    # service_employee = models.CharField("Сотрудник сервиса", max_length=200, blank=True)
 
     CONCLUSION_CHOICES = [
         ('', 'Не выбрано'),

@@ -104,8 +104,12 @@ class RepairRequestEditForm(forms.ModelForm):
             # Диагностика
             "diagnosis_date": forms.DateInput(attrs={"type": "date", "class": "details-input"}),
             "completion_date": forms.DateInput(attrs={"type": "date", "class": "details-input"}),
-            "service_employee": forms.TextInput(
-                attrs={"class": "details-input", "placeholder": "Введите ФИО сотрудника"}),
+            # "service_employee": forms.TextInput(
+            #     attrs={"class": "details-input", "placeholder": "Введите ФИО сотрудника"}),
+            "service_employee": forms.Select(attrs={
+                "class": "details-input",
+                "id": "service_employee"
+            }),
             "conclusion": forms.Select(attrs={"class": "details-input"}),
             "decision": forms.Select(attrs={"class": "details-input"}),
             "malfunction_formulation": forms.Textarea(attrs={
