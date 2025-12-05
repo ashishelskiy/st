@@ -78,14 +78,16 @@
                                     <td>{{ r.serial_number }}</td>
                                     <td>{{ r.product }}</td>
                                     <td>
-                                        {% if r.warranty_status == "warranty" %}
-                                            <span class="request-status status-sent">На гарантии</span>
-                                        {% elif r.warranty_status == "paid_repair" %}
-                                            <span class="request-status status-created">Платный ремонт</span>
-                                        {% elif r.warranty_status == "diagnostics" %}
-                                            <span class="request-status status-created">Диагностика</span>
+                                        {% if r.act_status %}
+                                            <!-- Если есть статус акта - показываем его -->
+                                            <span class="request-status status-{{ r.act_status }}">
+                                                {{ r.get_act_status_display }}
+                                            </span>
                                         {% else %}
-                                            <span class="request-status status-created">{{ r.get_warranty_status_display }}</span>
+                                            <!-- Иначе показываем общий статус заявки -->
+                                            <span class="request-status status-{{ r.status }}">
+                                                {{ r.get_status_display }}
+                                            </span>
                                         {% endif %}
                                     </td>
                                 </tr>
