@@ -385,7 +385,6 @@ let initialFormData = null;
 // ========== ФУНКЦИИ ДЛЯ МОДАЛЬНОГО ОКНА ==========
 
 function showConfirmationModal() {
-    // Проверяем, есть ли изменения
     if (!isFormChanged) {
         alert('Нет изменений для сохранения');
         return;
@@ -505,7 +504,7 @@ function trackFormChanges() {
     updateSaveButtonState();
 }
 
-// ========== ФУНКЦИИ ДЛЯ ИНТЕРФЕЙСА (ВАШ СТАРЫЙ КОД) ==========
+// ========== ФУНКЦИИ ДЛЯ ИНТЕРФЕЙСА ==========
 
 function viewPhoto(url) {
     window.open(url, '_blank');
@@ -513,6 +512,18 @@ function viewPhoto(url) {
 
 function viewVideo(url) {
     window.open(url, '_blank');
+}
+
+// НАХОДИМ ПОЛЕ ТИПА РЕМОНТА ПО РАЗНЫМ ВАРИАНТАМ
+function findRepairTypeField() {
+    // Пробуем разные варианты поиска
+    const byId = document.getElementById('id_repair_type');
+    const byName = document.querySelector('[name="repair_type"]');
+    const byNameContains = document.querySelector('[name*="repair_type"]');
+    const byNameContains2 = document.querySelector('[name*="repair"]');
+
+    // Возвращаем первое найденное
+    return byId || byName || byNameContains || byNameContains2;
 }
 
 function updateInterface() {
@@ -536,6 +547,10 @@ function updateInterface() {
 
         if (showWarrantySection) {
             updateWarrantyFields(decision, conclusion);
+        } else {
+            // Если секция скрыта, скрываем все подтипы
+            document.getElementById('acoustics_repair_subtype').style.display = 'none';
+            document.getElementById('amplifier_repair_subtype').style.display = 'none';
         }
     }
 }
@@ -580,6 +595,7 @@ function updateWarrantyFields(decision, conclusion) {
     } else {
         document.getElementById('refusal_reason_group').style.display = 'none';
         showRepairFields();
+        // Используем новую функцию для поиска поля
         toggleRepairSubtypes();
     }
 }
@@ -610,18 +626,34 @@ function showRepairFields() {
     document.getElementById('repair_performed_group').style.display = 'block';
 }
 
+// ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ ПОДТИПОВ РЕМОНТА
 function toggleRepairSubtypes() {
-    const repairType = document.querySelector('#id_repair_type').value;
+    // Используем функцию поиска поля
+    const repairTypeField = findRepairTypeField();
+    if (!repairTypeField) {
+        console.log('Поле типа ремонта не найдено');
+        return;
+    }
+
+    const repairType = repairTypeField.value;
     const acousticsSubtype = document.getElementById('acoustics_repair_subtype');
     const amplifierSubtype = document.getElementById('amplifier_repair_subtype');
 
+    // Сначала скрываем все
     acousticsSubtype.style.display = 'none';
     amplifierSubtype.style.display = 'none';
 
-    if (repairType === 'acoustics') {
-        acousticsSubtype.style.display = 'block';
-    } else if (repairType === 'amplifier') {
-        amplifierSubtype.style.display = 'block';
+    // Проверяем, видна ли секция ремонта
+    const repairDetailsGroup = document.getElementById('repair_details_group');
+    const isRepairVisible = repairDetailsGroup && repairDetailsGroup.style.display !== 'none';
+
+    // Показываем нужный подтип только если секция ремонта видна
+    if (isRepairVisible) {
+        if (repairType === 'acoustics') {
+            acousticsSubtype.style.display = 'block';
+        } else if (repairType === 'amplifier') {
+            amplifierSubtype.style.display = 'block';
+        }
     }
 }
 
@@ -672,11 +704,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработчики для интерфейса
     const decisionSelect = document.querySelector('#id_decision');
     const conclusionSelect = document.querySelector('#id_conclusion');
-    const repairTypeSelect = document.querySelector('#id_repair_type');
+
+    // Ищем поле типа ремонта через функцию
+    const repairTypeField = findRepairTypeField();
 
     if (decisionSelect) decisionSelect.addEventListener('change', updateInterface);
     if (conclusionSelect) conclusionSelect.addEventListener('change', updateInterface);
-    if (repairTypeSelect) repairTypeSelect.addEventListener('change', toggleRepairSubtypes);
+    if (repairTypeField) {
+        repairTypeField.addEventListener('change', toggleRepairSubtypes);
+    }
 
     // Обработчики для расчета стоимости
     document.querySelector('#id_labor_cost')?.addEventListener('input', calculateTotalCost);
@@ -685,7 +721,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Первоначальная настройка
     updateInterface();
-    toggleRepairSubtypes();
+
+    // Проверяем подтипы при загрузке с задержкой
+    setTimeout(function() {
+        toggleRepairSubtypes();
+    }, 100);
 
     console.log('Script loaded - отслеживание изменений активировано');
 });

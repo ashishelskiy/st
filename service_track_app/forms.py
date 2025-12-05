@@ -68,7 +68,6 @@ class RepairRequestForm(forms.ModelForm):
 class RepairRequestEditForm(forms.ModelForm):
     class Meta:
         model = RepairRequest
-        # ========== НАЧАЛО: ВСЕ ПОЛЯ ДЛЯ РЕДАКТИРОВАНИЯ ==========
         fields = [
             # Основные поля
             "serial_number", "product", "purchase_date", "warranty_status",
@@ -88,7 +87,6 @@ class RepairRequestEditForm(forms.ModelForm):
             "payment_link", "labor_cost", "parts_cost", "total_cost",
             "parts_discount", "paid_by_client", "payment_date",
         ]
-        # ========== КОНЕЦ: ВСЕ ПОЛЯ ДЛЯ РЕДАКТИРОВАНИЯ ==========
 
         widgets = {
             # Основные поля
@@ -100,7 +98,6 @@ class RepairRequestEditForm(forms.ModelForm):
             "additional_notes": forms.Textarea(attrs={"class": "form-textarea"}),
             "status": forms.Select(attrs={"class": "form-select"}),
 
-            # ========== НАЧАЛО: ВИДЖЕТЫ ДЛЯ НОВЫХ ПОЛЕЙ ==========
             # Диагностика
             "diagnosis_date": forms.DateInput(attrs={"type": "date", "class": "details-input"}),
             "completion_date": forms.DateInput(attrs={"type": "date", "class": "details-input"}),
@@ -129,14 +126,22 @@ class RepairRequestEditForm(forms.ModelForm):
             }),
             "repair_date": forms.DateInput(attrs={"type": "date", "class": "details-input"}),
             "repair_type": forms.Select(attrs={"class": "details-input", "id": "repair_type"}),
-            "acoustics_repair_subtype": forms.TextInput(attrs={
+            "acoustics_repair_subtype": forms.Select(attrs={
                 "class": "details-input",
-                "placeholder": "Начните вводить тип ремонта..."
+                "id": "id_acoustics_repair_subtype"
             }),
-            "amplifier_repair_subtype": forms.TextInput(attrs={
+            "amplifier_repair_subtype": forms.Select(attrs={
                 "class": "details-input",
-                "placeholder": "Начните вводить тип ремонта..."
+                "id": "id_amplifier_repair_subtype"
             }),
+            # "acoustics_repair_subtype": forms.TextInput(attrs={
+            #     "class": "details-input",
+            #     "placeholder": "Начните вводить тип ремонта..."
+            # }),
+            # "amplifier_repair_subtype": forms.TextInput(attrs={
+            #     "class": "details-input",
+            #     "placeholder": "Начните вводить тип ремонта..."
+            # }),
             "repair_performed": forms.Textarea(attrs={
                 "class": "details-textarea",
                 "rows": 3,
@@ -186,7 +191,6 @@ class RepairRequestEditForm(forms.ModelForm):
                 "step": "0.01"
             }),
             "payment_date": forms.DateInput(attrs={"type": "date", "class": "details-input"}),
-            # ========== КОНЕЦ: ВИДЖЕТЫ ДЛЯ НОВЫХ ПОЛЕЙ ==========
         }
 
     def __init__(self, *args, **kwargs):
