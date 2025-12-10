@@ -804,69 +804,123 @@ def generate_act_docx(request, request_id):
     from django.http import HttpResponse
     from io import BytesIO
     import os
+    from django.utils import timezone
+    from django.shortcuts import get_object_or_404
 
     repair_request = get_object_or_404(RepairRequest, id=request_id)
 
-    # Подготовка данных для вашего шаблона
+    # ФУНКЦИЯ ДЛЯ ГЕНЕРАЦИИ ТЕКСТА АКТА ПО ПРАВИЛАМ
+    def generate_act_text(repair_request):
+        decision = repair_request.decision
+        conclusion = repair_request.conclusion
+        detected_problem = repair_request.detected_problem or ""
+        refusal_reason = repair_request.refusal_reason or ""
+
+        # ПЛАТНЫЙ РЕМОНТ
+        if decision in ['paid_repair', 'hydra_repair', 'demo_repair']:
+            parts_cost = repair_request.parts_cost or 0
+            labor_cost = repair_request.labor_cost or 0
+            total_cost = repair_request.total_cost or 0
+
+            # Получаем текст типа ремонта
+            repair_type_text = "Работы"
+            if repair_request.repair_type == 'acoustics' and repair_request.acoustics_repair_subtype:
+                repair_type_text = repair_request.acoustics_repair_subtype
+            elif repair_request.repair_type == 'amplifier' and repair_request.amplifier_repair_subtype:
+                repair_type_text = repair_request.amplifier_repair_subtype
+            elif repair_request.repair_type and repair_request.get_repair_type_display():
+                repair_type_text = repair_request.get_repair_type_display()
+
+            text = f"""В результате лабораторного исследования выявлено: {detected_problem}. Что не является заводским браком.
+
+Проведенный анализ показывает, что эксплуатация изделия проходила с нарушениями требований, оговоренных в «Руководстве по эксплуатации». В связи с этим сообщаем, что на данное изделие условия гарантийного ремонта, обмена или компенсации не распространяются.
+
+Стоимость негарантийного ремонта:
+1. Стоимость комплектующих - {parts_cost:.2f} руб.
+2. {repair_type_text} - {labor_cost:.2f} руб.
+Итого: {total_cost:.2f} руб."""
+            return text
+
+        # ВОЗВРАТ БЕЗ РЕМОНТА - проверяем reason_refusal
+        elif decision == 'return':
+            # Если причина отказа "нет запчастей"
+            if refusal_reason == 'no_spare_parts':
+                text = f"""В результате лабораторного исследования выявлено: {detected_problem}. Что не является заводским браком.
+
+Проведенный анализ показывает, что эксплуатация изделия проходила с нарушениями требований, оговоренных в «Руководстве по эксплуатации». В связи с этим сообщаем, что на данное изделие условия гарантийного ремонта, обмена или компенсации не распространяются. Платный ремонт невозможен в связи с отсутствием запасных частей."""
+                return text
+
+            # Если причина отказа "клиент отказался"
+            elif refusal_reason == 'client_refused':
+                text = f"""В результате лабораторного исследования выявлено: {detected_problem}. Что не является заводским браком.
+
+Проведенный анализ показывает, что эксплуатация изделия проходила с нарушениями требований, оговоренных в «Руководстве по эксплуатации». В связи с этим сообщаем, что на данное изделие условия гарантийного ремонта, обмена или компенсации не распространяются. Клиент отказался от платного ремонта."""
+                return text
+
+            # Если не заводской брак (но не указана причина отказа)
+            elif conclusion == 'not_factory_defect':
+                text = f"""В результате лабораторного исследования выявлено: {detected_problem}. Что не является заводским браком.
+
+Проведенный анализ показывает, что эксплуатация изделия проходила с нарушениями требований, оговоренных в «Руководстве по эксплуатации». В связи с этим сообщаем, что на данное изделие условия гарантийного ремонта, обмена или компенсации не распространяются."""
+                return text
+
+            # Если товар исправен (нет проблем)
+            else:
+                return "В результате лабораторного исследования дефектов не обнаружено. Товар полностью исправен и отвечает заявленным характеристикам."
+
+        # ГАРАНТИЙНЫЙ РЕМОНТ
+        elif decision == 'warranty_repair':
+            return f"""В результате лабораторного исследования выявлено: {detected_problem}.
+Все неисправности устранены согласно гарантийным обязательствам."""
+
+        # ОБМЕН ТОВАРА
+        elif decision == 'exchange':
+            if conclusion == 'factory_defect':
+                return f"""В результате лабораторного исследования выявлено: {detected_problem}. Что является заводским браком.
+Товар будет заменен на новый."""
+            else:
+                return f"""В результате лабораторного исследования выявлено: {detected_problem}.
+Товар будет заменен на новый."""
+
+        # ЕСЛИ НИЧЕГО НЕ ПОДОШЛО (старый формат для совместимости)
+        else:
+            detected = detected_problem or "не указано"
+            conclusion_text = repair_request.get_conclusion_display() if repair_request.conclusion else "не указано"
+            decision_text = repair_request.get_decision_display() if repair_request.decision else "не указано"
+
+            return f"В результате лабораторного исследования выявлено: {detected}\nи принято следующее заключение: {conclusion_text} {decision_text}."
+
+    # Генерируем текст акта
+    act_text = generate_act_text(repair_request)
+
+    # Подготовка данных для шаблона
     context = {
-        # Основная информация
         'act_number': f"{repair_request.id}/{timezone.now().strftime('%m/%y')}",
         'act_date': timezone.now().strftime('%d.%m.%Y'),
         'product_name': str(repair_request.product),
         'serial_number': repair_request.serial_number,
         'received_date': repair_request.created_at.strftime('%d.%m.%Y'),
         'customer_name': repair_request.customer_name or "Неизвестный клиент",
+        'problem_description': repair_request.problem_description or "не указано",
 
-        # Информация о диагностике
-        'diagnosis_date': repair_request.diagnosis_date.strftime(
-            '%d.%m.%Y') if repair_request.diagnosis_date else "не указана",
-        'completion_date': repair_request.completion_date.strftime(
-            '%d.%m.%Y') if repair_request.completion_date else "не указана",
-        'service_employee': repair_request.service_employee or "не указан",
+        # ВАЖНО: передаем сгенерированный текст
+        'act_text': act_text,
 
-        # Заключение и решение
+        # Оставляем старые поля для совместимости
         'conclusion': repair_request.get_conclusion_display() if repair_request.conclusion else "не указано",
         'decision': repair_request.get_decision_display() if repair_request.decision else "не указано",
-
-        # Детали неисправности
-        'problem_description': repair_request.problem_description or "не указано",
         'detected_problem': repair_request.detected_problem or "не указано",
-        'malfunction_formulation': repair_request.malfunction_formulation or "",
-
-        # Информация о ремонте
-        'repair_date': repair_request.repair_date.strftime('%d.%m.%Y') if repair_request.repair_date else "не указана",
-        'repair_type': repair_request.get_repair_type_display() if repair_request.repair_type else "не указан",
-        'repair_performed': repair_request.repair_performed or "не указаны",
-
-        # Дополнительная информация
-        'additional_info': repair_request.additional_info or "",
-        'internal_comment': repair_request.internal_comment or "",
-
-        # Информация об оплате
-        'labor_cost': f"{repair_request.labor_cost:.2f}" if repair_request.labor_cost else "0.00",
-        'parts_cost': f"{repair_request.parts_cost:.2f}" if repair_request.parts_cost else "0.00",
-        'total_cost': f"{repair_request.total_cost:.2f}" if repair_request.total_cost else "0.00",
-        'parts_discount': f"{repair_request.parts_discount}%" if repair_request.parts_discount else "0%",
-        'paid_by_client': f"{repair_request.paid_by_client:.2f}" if repair_request.paid_by_client else "0.00",
-        'payment_date': repair_request.payment_date.strftime(
-            '%d.%m.%Y') if repair_request.payment_date else "не оплачено",
-
-        # Статусы
-        'warranty_status': repair_request.get_warranty_status_display(),
-        'act_status': repair_request.get_act_status_display() if repair_request.act_status else "не указан",
-        'price_type': repair_request.get_price_type_display() if repair_request.price_type else "не указан",
+        'refusal_reason': repair_request.get_refusal_reason_display() if repair_request.refusal_reason else "не указано",
     }
 
-    # Путь к вашему шаблону
+    # Путь к шаблону
     current_dir = os.path.dirname(os.path.abspath(__file__))
     template_path = os.path.join(current_dir, 'templates', 'word', 'act_template.docx')
-
-    print(f"📄 Использую шаблон: {template_path}")
 
     if not os.path.exists(template_path):
         return HttpResponse(f"Шаблон не найден: {template_path}", status=404)
 
-    # Загружаем и заполняем ваш шаблон
+    # Загружаем и заполняем шаблон
     doc = DocxTemplate(template_path)
     doc.render(context)
 
@@ -881,8 +935,4 @@ def generate_act_docx(request, request_id):
         content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
     response['Content-Disposition'] = f'attachment; filename="Акт_№{repair_request.id}.docx"'
-    response['X-Download-Options'] = 'noopen'
-    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response['Pragma'] = 'no-cache'
-
     return response
