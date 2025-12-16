@@ -172,6 +172,7 @@ class RepairRequest(models.Model):
     completion_date = models.DateField("Дата завершения", null=True, blank=True)
     SERVICE_EMPLOYEE_CHOICES = [
         ('', 'Не выбрано'),
+        ('Сервис динамики', 'Сервис динамики'),
         ('Головин Д.О.', 'Головин Д.О.'),
         ('Гуськов В.Г.', 'Гуськов В.Г.'),
         ('Колтырин В.С.', 'Колтырин В.С.'),
